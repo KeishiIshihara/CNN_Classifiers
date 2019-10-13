@@ -17,12 +17,12 @@ from callbacks import LearningHistoryCallback
 from get_best_model import getNewestModel
 
 # configs
-prefix = 'trial1' # TODO: automatically dicide this name
+prefix = 'trial1' # for name of data # TODO: automatically dicide this name
 batch_size = 256 # 128
 num_classes = 10 # numbers are 10 types
-epochs = 5 # epochs
-debug = True # use small data
-only_evaluate = True # only evaluate the already trained model without train new model
+epochs = 10 # epochs
+debug = False # use small data
+only_evaluate = False # only evaluate the already trained model without train new model
 img_rows, img_cols = 28, 28 # input image dimensions
 
 # load mnist dataset splited between train and test sets
@@ -47,6 +47,7 @@ x_train = x_train.astype('float32') / 255
 x_val = x_val.astype('float32') / 255
 x_test = x_test.astype('float32') / 255
 
+print('---')
 print('x_train shape:', x_train.shape)
 print('y_train shape:', y_train.shape)
 print(x_train.shape[0], 'train samples')
@@ -85,7 +86,7 @@ if not only_evaluate:
     # callbacks to be useful when training eg). monitoring training curves
     from keras.callbacks import ModelCheckpoint
     mc_cb = ModelCheckpoint( # this is for saving the model on each epochs when the model is better
-                    filepath=os.path.join('models', 'model_{epoch:02d}_{val_loss:.2f}.hdf5'),
+                    filepath='models/model_{epoch:02d}_{val_loss:.2f}.hdf5',
                     monitor='val_loss',
                     verbose=1,
                     save_best_only=True, 
@@ -109,7 +110,8 @@ if not only_evaluate:
     del cnn # delete the model to load the best model (this is not necessary)
 
 
-cnn = getNewestModel('models') # load the best model in models directory
+# load the best model from directory named models
+cnn = getNewestModel('models')
 
 # evaluate the model using test data
 print('Evaluating CNN model..')
@@ -123,19 +125,23 @@ print('Predicting test set..')
 prediction = cnn.predict(x_test, batch_size=256, verbose=1, steps=None)  
 classified = np.argmax(prediction, axis=1) 
 score = np.max(prediction, axis=1) * 100
+
 #
 misclassified_label_index = np.where((classified == y_test) == 0)[0]
 arr1 = np.array([0 for i in range(10)]) #
 arr2 = np.array([-1 for i in range(10)]) #
+
 #
 for i, xx in enumerate(misclassified_label_index):
     arr1[y_test[xx]] += 1
     if arr2[y_test[xx]] == -1:
         arr2[y_test[xx]] = xx
+
 #
 misclassify_plobability = arr1/np.sum(arr1) * 100
+print('Misclassify probabilities >>')
 for i, mp in enumerate(misclassify_plobability):
-    print('class: {} -> {}'.format(i, mp))
+    print('class: {} -> {:.2f}'.format(i, mp))
 print('---')
 print('Test loss: {:.2f}'.format(final_score[0]))
 print('Test accuracy: {:.2f}'.format(final_score[1]))
