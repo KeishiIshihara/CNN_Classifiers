@@ -1,0 +1,9 @@
+# folders
+__pycache__
+
+
+# files
+*.DS_Store
+*.pyc
+*.pdf
+*.hdf5
