@@ -19,3 +19,4 @@
 - [Confusion matrix — scikit-learn 0.21.3 documentation](https://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html#sphx-glr-auto-examples-model-selection-plot-confusion-matrix-py)
 - [keras/mnist_cnn.py at master · keras-team/keras](https://github.com/keras-team/keras/blob/master/examples/mnist_cnn.py)
 - [Image classification  |  TensorFlow Core](https://www.tensorflow.org/tutorials/images/classification)
+- [Kerasのモデルは学習完了時のものが最良とは限らない - Qiita](https://qiita.com/cvusk/items/7bcd3bc2e82bb45c9e9c)
