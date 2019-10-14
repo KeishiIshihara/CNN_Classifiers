@@ -36,8 +36,7 @@ class LearningHistoryCallback(Callback):
 
         # Before plotting ensure at least 2 epochs have passed
         if epoch >= 1:
-
-            N = np.arange(0, len(self.train_losses))
+            N = np.arange(1, epoch+2)
 
             plt.style.use("ggplot") # other option: seaborn, seaborn-colorblind
             fig, (axL, axR) = plt.subplots(ncols=2, figsize=(10,4))
@@ -71,7 +70,7 @@ class LearningHistoryCallback(Callback):
 #  Reference: Confusion matrix — scikit-learn 0.21.3 documentation
 #  https://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html#sphx-glr-auto-examples-model-selection-plot-confusion-matrix-py
 # ------------------------------------------------------
-
+import matplotlib as mpl
 from sklearn.metrics import confusion_matrix
 from sklearn.utils.multiclass import unique_labels
 
@@ -84,6 +83,7 @@ def plot_confusion_matrix(y_true, y_pred, classes,
     This function prints and plots the confusion matrix.
     Normalization can be applied by setting `normalize=True`.
     """
+    mpl.rcParams.update(mpl.rcParamsDefault) # clear current plt style defined before
     if not title:
         if normalize:
             title = 'Normalized confusion matrix'
@@ -95,7 +95,7 @@ def plot_confusion_matrix(y_true, y_pred, classes,
     # Only use the labels that appear in the data
     classes = classes[unique_labels(y_true, y_pred)]
     if normalize:
-        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis] # normalize
         print("Normalized confusion matrix")
     else:
         print('Confusion matrix, without normalization')
@@ -103,12 +103,10 @@ def plot_confusion_matrix(y_true, y_pred, classes,
     fig, ax = plt.subplots()
     im = ax.imshow(cm, interpolation='nearest', cmap=cmap)
     ax.figure.colorbar(im, ax=ax)
-    # We want to show all ticks...
     ax.set_xticks(np.arange(cm.shape[1]), minor=False)
     ax.set_yticks(np.arange(cm.shape[0]+1)-0.5, minor=False)
     ax.set(# xticks=np.arange(cm.shape[1]),
            # yticks=np.arange(cm.shape[0])+0.5,
-           # ... and label them with the respective list entries
            xticklabels=classes, yticklabels=classes,
            title=title,
            ylabel='True label',
@@ -126,7 +124,7 @@ def plot_confusion_matrix(y_true, y_pred, classes,
             ax.text(j, i, format(cm[i, j], fmt),
                     ha="center", va="center",
                     color="white" if cm[i, j] > thresh else "black")
-    # fig.tight_layout()
 
+    # fig.tight_layout()
     plt.savefig('results/{}_confusion_matrix.png'.format(prefix))
     plt.close
