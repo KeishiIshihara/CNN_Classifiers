@@ -1,3 +1,10 @@
+# -----------------------------------------------
+#  Best Trained Model Getter
+#
+#  Referenced from:
+#   https://qiita.com/cvusk/items/7bcd3bc2e82bb45c9e9c
+# -----------------------------------------------
+
 from __future__ import print_function
 
 import os
