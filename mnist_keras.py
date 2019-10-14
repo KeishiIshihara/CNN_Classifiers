@@ -124,54 +124,50 @@ final_score = cnn.evaluate(x_test, y_test, verbose=1)
 # evaluation & visualization here
 y_test = np.argmax(y_test, axis=1) # reconvert from one-hot vector to label(scalar)
 print('Predicting test set..')
-# predict using test data, output is an array
+# predict using test data, output is an array which has all predicted data
 prediction = cnn.predict(x_test, batch_size=256, verbose=1, steps=None)
 classified = np.argmax(prediction, axis=1)
 score = np.max(prediction, axis=1) * 100
 
-# confution matrix and classification report
+# confution matrix
 print('Confusion Matrix')
 cm = confusion_matrix(y_test, classified) # sklearn method to calculate CM
 cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis] # normalize
+print(cm)
 
+# classification report
 print('Classification Report')
 target_names = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 print(classification_report(y_test, classified, target_names=target_names))
 
-# Plot normalized confusion matrix
+# plot normalized confusion matrix
 plot_confusion_matrix(y_test, classified, classes=np.array(target_names),
-                    #   title='Confusion matrix, without normalization', 
                       prefix=prefix,
                       normalize=True)
-
+       
+# pick the most common misclassified data in each classes
 misclassified_class = np.array([0 for i in range(num_classes)])
 misclassified_probability = np.array([0. for i in range(num_classes)])
-# print('misclassified classes from confusion matrix')
 for i, m in enumerate(cm):
-    misclassified_class[i] = m.argsort()[::-1][1] # secondly largest value's index in each class
-    misclassified_probability[i] = m[misclassified_class[i]] * 100 # secondly largest value
-    # print('class true {}, pred {} : {}'.format(i, misclassified_class[i], misclassified_probability[i]))
+    misclassified_class[i] = m.argsort()[::-1][1] # secondly largest probability's
+    misclassified_probability[i] = m[misclassified_class[i]] * 100 # secondly largest probability
 
-# sample one misclassified data
-# print('misclassified classes from misclassified_label_index')
+# sample one misclassified data of each classes
 misclassified_label_index = np.where((classified == y_test) == 0)[0]
 sample_idx = []
 for i in range(num_classes):
-    # print('class',i,': ', end='')
     for xx in misclassified_label_index:
         if y_test[xx] == i and classified[xx] == misclassified_class[i]:
-            # print('true', y_test[xx], ', classified', classified[xx], ', misclassified', misclassified_class[i])
             sample_idx.append(xx)
             break
-print('samples index: ',sample_idx)
+print('sample indices: ',sample_idx)
 
-# plot 
+# plot result
 f, axarr = plt.subplots(5, 2, figsize=(7,14))
 for i in range(len(cm)):
     axarr[int(i/2), i%2].axis('off')
     axarr[int(i/2), i%2].set_title("Classified to {} (score={:.1f}[%])\n It's chance={:.2f}[%]".format(classified[sample_idx[i]], score[sample_idx[i]], misclassified_probability[i]))
     axarr[int(i/2), i%2].imshow(x_test[sample_idx[i]].reshape(img_rows,img_cols), cmap='gray')
-
 plt.tight_layout()
 plt.savefig('results/{}_miss-classification.png'.format(prefix))
 print('(result image is saved.)')
