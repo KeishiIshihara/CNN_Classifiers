@@ -20,12 +20,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # configs
-prefix = 'trial2' # for name of data # TODO: automatically dicide this name
+prefix = 'trial1' # for name of data # TODO: automatically dicide this name
 batch_size = 256 # 128
 num_classes = 10 # numbers are 10 types
-epochs = 10 # epochs
-debug = True # use small data
-only_evaluate = True # only evaluate the already trained model without train new model
+epochs = 5 # epochs
+debug = False # use small data
+only_evaluate = False # only evaluate the already trained model without train new model
 img_rows, img_cols = 28, 28 # input image dimensions
 
 # load mnist dataset splited between train and test sets
@@ -68,8 +68,11 @@ y_test = keras.utils.to_categorical(y_test, num_classes)   # 10000 samples
 if not only_evaluate:
     # define CNN Architecture using Functional API
     input_img = Input(shape=input_shape) # this returns a tensor
-    x = Conv2D(32, kernel_size=(3,3), activation='relu')(input_img) # conv layer1 with 3x3 kernel and relu function
-    x = Conv2D(64, kernel_size=(3,3), activation='relu')(x) # conv layer2 with 3x3 kernel and relu func
+    x = Conv2D(32, kernel_size=(3,3), activation='relu')(input_img) # conv layer with 3x3 kernel and relu function
+    x = Conv2D(64, kernel_size=(3,3), activation='relu')(x) # conv layer with 3x3 kernel and relu func
+    x = MaxPooling2D(pool_size=(2, 2))(x) # maxpooling layer, where pools features and convert to half size 
+    x = Conv2D(64, kernel_size=(3,3), activation='relu')(x) # conv layer with 3x3 kernel and relu func
+    x = Conv2D(64, kernel_size=(3,3), activation='relu')(x) # conv layer with 3x3 kernel and relu func
     x = MaxPooling2D(pool_size=(2, 2))(x) # maxpooling layer, where pools features and convert to half size 
     # x = Dropout(0.25)(x) # dropout layer
     x = Flatten()(x) # flatten the extracted features to input dense layer
@@ -144,7 +147,7 @@ print(classification_report(y_test, classified, target_names=target_names))
 plot_confusion_matrix(y_test, classified, classes=np.array(target_names),
                       prefix=prefix,
                       normalize=True)
-       
+
 # pick the most common misclassified data in each classes
 misclassified_class = np.array([0 for i in range(num_classes)])
 misclassified_probability = np.array([0. for i in range(num_classes)])
@@ -160,7 +163,7 @@ for i in range(num_classes):
         if y_test[xx] == i and classified[xx] == misclassified_class[i]:
             sample_idx.append(xx)
             break
-print('sample indices: ',sample_idx)
+print('sampled indices: ',sample_idx)
 
 # plot result
 f, axarr = plt.subplots(5, 2, figsize=(7,14))
