@@ -5,7 +5,7 @@
 #    (c) Keishi Ishihara
 # -------------------------------------------
 
-'''This code is also useful for better understanging how to use keras'''
+'''This might be helpful also for coding with keras'''
 from __future__ import print_function
 import keras
 from keras.datasets import mnist # keras module has mnist dataset
@@ -13,16 +13,19 @@ from keras.layers import Input, Dense, Dropout, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 from keras.models import Model
 from sklearn.model_selection import train_test_split
-from callbacks import LearningHistoryCallback
+from sklearn.metrics import confusion_matrix, classification_report
+from callbacks import LearningHistoryCallback, plot_confusion_matrix
 from get_best_model import getNewestModel
+import numpy as np 
+import matplotlib.pyplot as plt
 
 # configs
-prefix = 'trial1' # for name of data # TODO: automatically dicide this name
+prefix = 'trial2' # for name of data # TODO: automatically dicide this name
 batch_size = 256 # 128
 num_classes = 10 # numbers are 10 types
 epochs = 10 # epochs
-debug = False # use small data
-only_evaluate = False # only evaluate the already trained model without train new model
+debug = True # use small data
+only_evaluate = True # only evaluate the already trained model without train new model
 img_rows, img_cols = 28, 28 # input image dimensions
 
 # load mnist dataset splited between train and test sets
@@ -51,6 +54,7 @@ print('---')
 print('x_train shape:', x_train.shape)
 print('y_train shape:', y_train.shape)
 print(x_train.shape[0], 'train samples')
+print(x_val.shape[0], 'val samples')
 print(x_test.shape[0], 'test samples')
 
 # one-hot encord each label data
@@ -67,10 +71,10 @@ if not only_evaluate:
     x = Conv2D(32, kernel_size=(3,3), activation='relu')(input_img) # conv layer1 with 3x3 kernel and relu function
     x = Conv2D(64, kernel_size=(3,3), activation='relu')(x) # conv layer2 with 3x3 kernel and relu func
     x = MaxPooling2D(pool_size=(2, 2))(x) # maxpooling layer, where pools features and convert to half size 
-    x = Dropout(0.25)(x) # dropout layer
+    # x = Dropout(0.25)(x) # dropout layer
     x = Flatten()(x) # flatten the extracted features to input dense layer
     x = Dense(128, activation='relu')(x) # dense (fully conected) layer with 128 neurons, relu activation
-    x = Dropout(0.5)(x) # dropout layer
+    # x = Dropout(0.5)(x) # dropout layer
     output = Dense(num_classes, activation='softmax')(x) # the output layer, 10 neurons, softmax activation
 
     # this creates a model
@@ -118,42 +122,60 @@ print('Evaluating CNN model..')
 final_score = cnn.evaluate(x_test, y_test, verbose=1)
 
 # evaluation & visualization here
-import numpy as np 
 y_test = np.argmax(y_test, axis=1) # reconvert from one-hot vector to label(scalar)
 print('Predicting test set..')
 # predict using test data, output is an array
-prediction = cnn.predict(x_test, batch_size=256, verbose=1, steps=None)  
-classified = np.argmax(prediction, axis=1) 
+prediction = cnn.predict(x_test, batch_size=256, verbose=1, steps=None)
+classified = np.argmax(prediction, axis=1)
 score = np.max(prediction, axis=1) * 100
 
-#
+# confution matrix and classification report
+print('Confusion Matrix')
+cm = confusion_matrix(y_test, classified) # sklearn method to calculate CM
+cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis] # normalize
+
+print('Classification Report')
+target_names = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+print(classification_report(y_test, classified, target_names=target_names))
+
+# Plot normalized confusion matrix
+plot_confusion_matrix(y_test, classified, classes=np.array(target_names),
+                    #   title='Confusion matrix, without normalization', 
+                      prefix=prefix,
+                      normalize=True)
+
+misclassified_class = np.array([0 for i in range(num_classes)])
+misclassified_probability = np.array([0. for i in range(num_classes)])
+# print('misclassified classes from confusion matrix')
+for i, m in enumerate(cm):
+    misclassified_class[i] = m.argsort()[::-1][1] # secondly largest value's index in each class
+    misclassified_probability[i] = m[misclassified_class[i]] * 100 # secondly largest value
+    # print('class true {}, pred {} : {}'.format(i, misclassified_class[i], misclassified_probability[i]))
+
+# sample one misclassified data
+# print('misclassified classes from misclassified_label_index')
 misclassified_label_index = np.where((classified == y_test) == 0)[0]
-arr1 = np.array([0 for i in range(10)]) #
-arr2 = np.array([-1 for i in range(10)]) #
+sample_idx = []
+for i in range(num_classes):
+    # print('class',i,': ', end='')
+    for xx in misclassified_label_index:
+        if y_test[xx] == i and classified[xx] == misclassified_class[i]:
+            # print('true', y_test[xx], ', classified', classified[xx], ', misclassified', misclassified_class[i])
+            sample_idx.append(xx)
+            break
+print('samples index: ',sample_idx)
 
-#
-for i, xx in enumerate(misclassified_label_index):
-    arr1[y_test[xx]] += 1
-    if arr2[y_test[xx]] == -1:
-        arr2[y_test[xx]] = xx
-
-#
-misclassify_plobability = arr1/np.sum(arr1) * 100
-print('Misclassify probabilities >>')
-for i, mp in enumerate(misclassify_plobability):
-    print('class: {} -> {:.2f}'.format(i, mp))
-print('---')
-print('Test loss: {:.2f}'.format(final_score[0]))
-print('Test accuracy: {:.2f}'.format(final_score[1]))
-
-#
-import matplotlib.pyplot as plt
+# plot 
 f, axarr = plt.subplots(5, 2, figsize=(7,14))
-for i in range(10):
+for i in range(len(cm)):
     axarr[int(i/2), i%2].axis('off')
-    axarr[int(i/2), i%2].set_title("Classified to {}, Score={:.1f}[%]\nMisclassify probability={:.2f}[%]".format(classified[arr2[i]], score[arr2[i]], misclassify_plobability[i]))
-    axarr[int(i/2), i%2].imshow(x_test[arr2[i]].reshape(28,28), cmap='gray')
+    axarr[int(i/2), i%2].set_title("Classified to {} (score={:.1f}[%])\n It's chance={:.2f}[%]".format(classified[sample_idx[i]], score[sample_idx[i]], misclassified_probability[i]))
+    axarr[int(i/2), i%2].imshow(x_test[sample_idx[i]].reshape(img_rows,img_cols), cmap='gray')
 
 plt.tight_layout()
 plt.savefig('results/{}_miss-classification.png'.format(prefix))
 print('(result image is saved.)')
+
+print('---')
+print('Test loss: {:.5f}'.format(final_score[0]))
+print('Test accuracy: {:.5f}'.format(final_score[1]))
