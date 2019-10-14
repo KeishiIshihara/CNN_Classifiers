@@ -104,8 +104,10 @@ def plot_confusion_matrix(y_true, y_pred, classes,
     im = ax.imshow(cm, interpolation='nearest', cmap=cmap)
     ax.figure.colorbar(im, ax=ax)
     # We want to show all ticks...
-    ax.set(xticks=np.arange(cm.shape[1]),
-           yticks=np.arange(cm.shape[0]),
+    ax.set_xticks(np.arange(cm.shape[1]), minor=False)
+    ax.set_yticks(np.arange(cm.shape[0]+1)-0.5, minor=False)
+    ax.set(# xticks=np.arange(cm.shape[1]),
+           # yticks=np.arange(cm.shape[0])+0.5,
            # ... and label them with the respective list entries
            xticklabels=classes, yticklabels=classes,
            title=title,
@@ -127,4 +129,4 @@ def plot_confusion_matrix(y_true, y_pred, classes,
     # fig.tight_layout()
 
     plt.savefig('results/{}_confusion_matrix.png'.format(prefix))
-    return ax
+    plt.close
