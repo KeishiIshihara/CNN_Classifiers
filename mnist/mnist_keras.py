@@ -20,10 +20,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # configs
-prefix = 'test' # for name of data # TODO: automatically dicide this name
+prefix = 'trail3' # for name of data # TODO: automatically dicide this name
 batch_size = 256 # 128
 num_classes = 10 # numbers are 10 types
-epochs = 5 # epochs
+epochs = 3 # epochs
 debug = True # use small data for debugging
 only_evaluate = False # only evaluate the already trained model without train new model
 img_rows, img_cols = 28, 28 # input image dimensions
@@ -83,7 +83,7 @@ if not only_evaluate:
     # this creates a model
     cnn = Model(inputs=input_img, outputs=output)
     cnn.summary() # visualize model in console
-    keras.utils.plot_model(cnn, to_file='models/model_cnn.png', show_shapes=True) # save model architecture as png
+    keras.utils.plot_model(cnn, to_file='models/'+prefix+'_model_cnn.png', show_shapes=True) # save model architecture as png
 
     # configure its learning process with compile() method
     cnn.compile(loss=keras.losses.categorical_crossentropy,
@@ -93,7 +93,7 @@ if not only_evaluate:
     # callbacks to be useful when training eg). monitoring training curves
     from keras.callbacks import ModelCheckpoint
     mc_cb = ModelCheckpoint( # this is for saving the model on each epochs when the model is better
-                    filepath='models/model_{epoch:02d}_{val_loss:.2f}.hdf5',
+                    filepath='models/'+prefix+'_model_{epoch:02d}_{val_loss:.2f}.hdf5',
                     monitor='val_loss',
                     verbose=1,
                     save_best_only=True, 
