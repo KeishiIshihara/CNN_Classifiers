@@ -16,15 +16,15 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, classification_report
 from callbacks import LearningHistoryCallback, plot_confusion_matrix
 from get_best_model import getNewestModel
-import numpy as np 
+import numpy as np
 import matplotlib.pyplot as plt
 
 # configs
-prefix = 'trial1' # for name of data # TODO: automatically dicide this name
+prefix = 'test' # for name of data # TODO: automatically dicide this name
 batch_size = 256 # 128
 num_classes = 10 # numbers are 10 types
 epochs = 5 # epochs
-debug = False # use small data
+debug = True # use small data for debugging
 only_evaluate = False # only evaluate the already trained model without train new model
 img_rows, img_cols = 28, 28 # input image dimensions
 
@@ -42,8 +42,8 @@ input_shape = (img_rows, img_cols, 1)
 x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.2, random_state=0)
 
 if debug:
-    x_train = x_train[:2000]
-    y_train = y_train[:2000]
+    x_train = x_train[:5000]
+    y_train = y_train[:5000]
 
 # normalize each image pixel values for all input data
 x_train = x_train.astype('float32') / 255
