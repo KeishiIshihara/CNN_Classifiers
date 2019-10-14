@@ -9,6 +9,17 @@
 - [ ] use ImageGenerator to process image data before training
 - [x] visualize confusion matrix
 
+### Requirements
+- macOS High Sierra 10.13.6
+- Python 3.6.0
+- Keras 2.3.0
+- tensorflow 1.14.0 (backend)
+
+In your pyenv environment, run 
+```
+$ pip install -r requirements.txt
+```
+
 ## On MNIST dataset
 
 
