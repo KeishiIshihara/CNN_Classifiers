@@ -1,5 +1,5 @@
 # ------------------------------------------
-#  Callback classes for training with Keras
+#  Callback class for training with Keras
 #
 #  (c) Keishi Ishihara
 # ------------------------------------------
