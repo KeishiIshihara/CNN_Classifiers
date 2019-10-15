@@ -1,16 +1,31 @@
+from __future__ import print_function
 
-
-
-from __future__ import absolute_import, division, print_function, unicode_literals
+# --------------------------------------------
+#  CNNs classifier to classify dogs and cats.
+#  Train the model by transfer learning 
+#  using VGG16 with imagenet weights
+#
+#    (c) Keishi Ishihara
+# --------------------------------------------
 
 import tensorflow as tf
-from tensorflow.keras.models import Sequential, Model
-from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, GlobalAveragePooling2D, Input
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from keras import backend as K
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+sess = tf.Session(config=config)
+K.set_session(sess)
 
-from tensorflow import keras
-from tensorflow.keras.optimizers import SGD
-from tensorflow.keras.applications.vgg16 import VGG16
+import keras
+from keras.models import Sequential, Model
+from keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, GlobalAveragePooling2D, Input
+from keras.preprocessing.image import ImageDataGenerator
+from keras.callbacks import ModelCheckpoint
+from callbacks import LearningHistoryCallback, plot_confusion_matrix
+from get_best_model import getNewestModel
+from keras.optimizers import SGD
+from keras.applications.vgg16 import VGG16
+# from keras.applications.resnet50 import ResNet50
+
 import os, sys
 import numpy as np
 import matplotlib.pyplot as plt
@@ -29,7 +44,6 @@ train_cats_dir = os.path.join(train_dir, 'cats')            # directory with our
 train_dogs_dir = os.path.join(train_dir, 'dogs')            # directory with our training dog pictures
 validation_cats_dir = os.path.join(validation_dir, 'cats')  # directory with our validation cat pictures
 validation_dogs_dir = os.path.join(validation_dir, 'dogs')  # directory with our validation dog pictures
-
 
 num_cats_tr = len(os.listdir(train_cats_dir))
 num_dogs_tr = len(os.listdir(train_dogs_dir))
@@ -52,9 +66,10 @@ print("Total validation images:", total_val)
 # ---------------------------------
 #  Prepare data generator
 
+show_samples = False
 prefix = 'test'
-batch_size = 128
-epochs = 3
+batch_size = 64
+epochs = 2
 IMG_HEIGHT = 150
 IMG_WIDTH = 150
 
@@ -75,80 +90,80 @@ val_data_gen = validation_image_generator.flow_from_directory(batch_size=batch_s
 
 # This function will plot images in the form of a grid 
 # with 1 row and 5 columns where images are placed in each column.
-def plotImages(images_arr):
+def plotImages(images_arr, fname):
     fig, axes = plt.subplots(1, 5, figsize=(20,20))
     axes = axes.flatten()
     for img, ax in zip( images_arr, axes):
         ax.imshow(img)
         ax.axis('off')
     plt.tight_layout()
-    plt.show()
+    plt.savefig(fname)
 
-# sample_training_images, hoge = next(train_data_gen)
-# plotImages(sample_training_images[:5])
-# print(label[:5])
+if show_samples:
+    sample_training_images, label = next(train_data_gen) # training sample
+    plotImages(sample_training_images[:5], 'ex_train.png')
+    print(label[:5])
 
-# sys.exit()
+    sample_val_images, label = next(val_data_gen) # validation sample
+    plotImages(sample_val_images[:5], 'ex_val.png')
+    print(label[:5])
+
+
+
+# ------------------------------------------------
+#  Define callbacks
+
+mc_cb = ModelCheckpoint( # this is for saving the model on each epochs when the model is better
+                filepath='models/'+prefix+'_model_{epoch:02d}_{val_loss:.2f}.hdf5',
+                monitor='val_loss',
+                verbose=1,
+                save_best_only=True, 
+                save_weights_only=False, # if True, save without optimazers to be used eg. retrain 
+                mode='auto')
+# for monitoring the training curves
+lh_cb = LearningHistoryCallback(prefix=prefix)
+callbacks = [mc_cb, lh_cb]
+
 
 # ------------------------------------------------
 #  Build Model from VGG16 trained with imagenet 
 
+## base model: VGG16 with imagenet weights
+input_tensor = Input(shape=(IMG_HEIGHT, IMG_WIDTH, 3)) # input tensor
+base_model = VGG16(weights='imagenet', include_top=False, input_tensor=input_tensor) # load vgg16 model
 
-# VGG16(model & weight)をインポート
-input_tensor = Input(shape=(IMG_HEIGHT, IMG_WIDTH, 3))
-print(input_tensor)
-base_model = VGG16(weights='imagenet', include_top=False, input_tensor=input_tensor)
-# base_model = VGG16(include_top=False, weights='imagenet')
-# base_model.summary()
-
-""" ## Using BOTTLENECK FEATURES
-# generate bottleneck feature data using VGG16
-bottleneck_feature_train = model.predict_generator(train_data_gen, verbose=1)    # training data
-bottleneck_feature_validation = model.predict_generator(val_data_gen, verbose=1) # validation data 
-
-# save bottleneck features
-train_file_name = 'train'
-validation_file_name = 'validation'
-np.save(PATH + 'bottleneck_features/' + train_file_name, bottleneck_feature_train)            # traning data
-np.save(PATH + 'bottleneck_features/' + validation_file_name, bottleneck_feature_validation)  # validation data
-
-# load bottleneck features
-train_data  = np.load(PATH + 'bottleneck_features/'  + train_file_name)
-len_input_samples = len(train_data)
-train_labels = np.array([0] * int(len_input_samples/2) + [1] * int(len_input_samples / 2))
-
-validation_data = np.load(PATH + 'bottleneck_features/'  + validation_file_name)
-validation_labels = np.array([0] * int(n_validation_samples / 2 *32) + [1] * int(n_validation_samples / 2 * 32))
-"""
-
-# # Classifier (FC layers)
+## Classifier (FC layers)
 x = base_model.output
 x = GlobalAveragePooling2D()(x)
 x = Dense(1024, activation='relu')(x)
-# predictions = Dense(N_CATEGORIES, activation='softmax')(x)
 predictions = Dense(1, activation='sigmoid')(x)
 model = Model(inputs=base_model.input, outputs=predictions)
 
-for layer in base_model.layers[:15]: # freeze base model
+# freeze base model parameters
+for layer in base_model.layers[:15]:
    layer.trainable = False
-# model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy',metrics=['accuracy'])
-model.compile(loss='binary_crossentropy', 
+
+# configure the model
+model.compile(loss='binary_crossentropy',
               optimizer=SGD(lr=1e-4, momentum=0.9), 
               metrics=['accuracy'])
 
-model.summary()
+model.summary() # print model sammary in console
 keras.utils.plot_model(model, to_file='models/'+prefix+'_vgg16_tl.png', show_shapes=True) # save model architecture as png
 
-# sys.exit()
-
+# train the model
 history = model.fit_generator(
     train_data_gen,
     steps_per_epoch=total_train // batch_size,
     epochs=epochs,
     validation_data=val_data_gen,
     validation_steps=total_val // batch_size,
+    callbacks=callbacks,
     verbose=1
 )
+
+
+# model = getNewestModel('models')
 
 acc = history.history['accuracy']
 val_acc = history.history['val_accuracy']
@@ -170,7 +185,7 @@ plt.plot(epochs_range, loss, label='Training Loss')
 plt.plot(epochs_range, val_loss, label='Validation Loss')
 plt.legend(loc='upper right')
 plt.title('Training and Validation Loss')
-plt.show()
+plt.savefig('results/{}_result.png'.format(prefix))
 
 
 
