@@ -6,6 +6,9 @@
 # -------------------------------------------
 
 '''This might be helpful also for coding with keras'''
+'''After 30 epoch it gets 0.99470 accuracy (loss=0.01696) with model model is trail4_30e_model_20_0.02.hdf5'''
+'''(4 seconds per epoch with GTX 1080)'''
+
 from __future__ import print_function
 import keras
 from keras.datasets import mnist # keras module has mnist dataset
@@ -20,12 +23,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # configs
-prefix = 'trail3' # for name of data # TODO: automatically dicide this name
-batch_size = 256 # 128
+prefix = 'trail4_30e' # for name of data # TODO: automatically dicide this name
+batch_size = 128 # 128
 num_classes = 10 # numbers are 10 types
-epochs = 3 # epochs
-debug = True # use small data for debugging
-only_evaluate = True # only evaluate the already trained model without train new model
+epochs = 30 # epochs
+debug = False # use small data for debugging
+only_evaluate = False # only evaluate the already trained model without train new model
 img_rows, img_cols = 28, 28 # input image dimensions
 
 # load mnist dataset splited between train and test sets
@@ -71,13 +74,14 @@ if not only_evaluate:
     x = Conv2D(32, kernel_size=(3,3), activation='relu')(input_img) # conv layer with 3x3 kernel and relu function
     x = Conv2D(64, kernel_size=(3,3), activation='relu')(x) # conv layer with 3x3 kernel and relu func
     x = MaxPooling2D(pool_size=(2, 2))(x) # maxpooling layer, where pools features and convert to half size 
+    x = Dropout(0.25)(x) # dropout layer
     x = Conv2D(64, kernel_size=(3,3), activation='relu')(x) # conv layer with 3x3 kernel and relu func
     x = Conv2D(64, kernel_size=(3,3), activation='relu')(x) # conv layer with 3x3 kernel and relu func
     x = MaxPooling2D(pool_size=(2, 2))(x) # maxpooling layer, where pools features and convert to half size 
-    # x = Dropout(0.25)(x) # dropout layer
+    x = Dropout(0.25)(x) # dropout layer
     x = Flatten()(x) # flatten the extracted features to input dense layer
     x = Dense(128, activation='relu')(x) # dense (fully conected) layer with 128 neurons, relu activation
-    # x = Dropout(0.5)(x) # dropout layer
+    x = Dropout(0.5)(x) # dropout layer
     output = Dense(num_classes, activation='softmax')(x) # the output layer, 10 neurons, softmax activation
 
     # this creates a model

@@ -8,6 +8,7 @@ from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, GlobalAveragePooling2D, Input
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
+from tensorflow import keras
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.applications.vgg16 import VGG16
 import os, sys
@@ -18,7 +19,8 @@ import matplotlib.pyplot as plt
 # ------------------------------------
 # Loading data and Undestanding data
 
-PATH = '/Users/ishiharakeishi/Downloads/dogs-vs-cats/'
+# PATH = '/Users/ishiharakeishi/Downloads/dogs-vs-cats/' # on mac
+PATH = '/home/keishish/ishihara/uef/AI/dogs-vs-cats'
 train_dir = os.path.join(PATH, 'train')
 validation_dir = os.path.join(PATH, 'validation') # validation is from google's dataset
 test_dir = os.path.join(PATH, 'test')
@@ -50,6 +52,7 @@ print("Total validation images:", total_val)
 # ---------------------------------
 #  Prepare data generator
 
+prefix = 'test'
 batch_size = 128
 epochs = 3
 IMG_HEIGHT = 150
@@ -134,7 +137,7 @@ model.compile(loss='binary_crossentropy',
               metrics=['accuracy'])
 
 model.summary()
-keras.utils.plot_model(model, to_file='models/'+prefix+'_model_cnn.png', show_shapes=True) # save model architecture as png
+keras.utils.plot_model(model, to_file='models/'+prefix+'_vgg16_tl.png', show_shapes=True) # save model architecture as png
 
 # sys.exit()
 
@@ -143,7 +146,8 @@ history = model.fit_generator(
     steps_per_epoch=total_train // batch_size,
     epochs=epochs,
     validation_data=val_data_gen,
-    validation_steps=total_val // batch_size
+    validation_steps=total_val // batch_size,
+    verbose=1
 )
 
 acc = history.history['accuracy']
@@ -167,3 +171,6 @@ plt.plot(epochs_range, val_loss, label='Validation Loss')
 plt.legend(loc='upper right')
 plt.title('Training and Validation Loss')
 plt.show()
+
+
+
