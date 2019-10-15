@@ -25,7 +25,7 @@ batch_size = 256 # 128
 num_classes = 10 # numbers are 10 types
 epochs = 3 # epochs
 debug = True # use small data for debugging
-only_evaluate = False # only evaluate the already trained model without train new model
+only_evaluate = True # only evaluate the already trained model without train new model
 img_rows, img_cols = 28, 28 # input image dimensions
 
 # load mnist dataset splited between train and test sets
@@ -169,7 +169,7 @@ print('sampled indices: ',sample_idx)
 f, axarr = plt.subplots(5, 2, figsize=(7,14))
 for i in range(len(cm)):
     axarr[int(i/2), i%2].axis('off')
-    axarr[int(i/2), i%2].set_title("Classified to {} (score={:.1f}[%])\n It's chance={:.2f}[%]".format(classified[sample_idx[i]], score[sample_idx[i]], misclassified_probability[i]))
+    axarr[int(i/2), i%2].set_title("Classified to {}(={:.1f}%)\n It's chance={:.2f}%".format(classified[sample_idx[i]], score[sample_idx[i]], misclassified_probability[i]))
     axarr[int(i/2), i%2].imshow(x_test[sample_idx[i]].reshape(img_rows,img_cols), cmap='gray')
 plt.tight_layout()
 plt.savefig('results/{}_miss-classification.png'.format(prefix))
