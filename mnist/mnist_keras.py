@@ -1,15 +1,23 @@
-# -------------------------------------------
+from __future__ import print_function
+
+# ----------------------------------------------
 #  CNNs classifier to classify on MNIST dataset
 #  with comments for better understanding
 #
 #    (c) Keishi Ishihara
-# -------------------------------------------
+# ----------------------------------------------
 
 '''This might be helpful also for coding with keras'''
 '''After 30 epoch it gets 0.99470 accuracy (loss=0.01696) with model model is trail4_30e_model_20_0.02.hdf5'''
 '''(4 seconds per epoch with GTX 1080)'''
 
-from __future__ import print_function
+import tensorflow as tf
+from keras import backend as K
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+sess = tf.Session(config=config)
+K.set_session(sess)
+
 import keras
 from keras.datasets import mnist # keras module has mnist dataset
 from keras.layers import Input, Dense, Dropout, Flatten
@@ -17,13 +25,15 @@ from keras.layers import Conv2D, MaxPooling2D
 from keras.models import Model
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, classification_report
+from keras.callbacks import ModelCheckpoint
 from callbacks import LearningHistoryCallback, plot_confusion_matrix
 from get_best_model import getNewestModel
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 # configs
-prefix = 'trail4_30e' # for name of data # TODO: automatically dicide this name
+prefix = 'pc_test' # for name of data # TODO: automatically dicide this name
 batch_size = 128 # 128
 num_classes = 10 # numbers are 10 types
 epochs = 30 # epochs
@@ -95,7 +105,6 @@ if not only_evaluate:
                 metrics=['accuracy'])
 
     # callbacks to be useful when training eg). monitoring training curves
-    from keras.callbacks import ModelCheckpoint
     mc_cb = ModelCheckpoint( # this is for saving the model on each epochs when the model is better
                     filepath='models/'+prefix+'_model_{epoch:02d}_{val_loss:.2f}.hdf5',
                     monitor='val_loss',
