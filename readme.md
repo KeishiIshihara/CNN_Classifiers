@@ -28,11 +28,11 @@ $ python mnist_keras.py
 It gets around 99.47% test accuracy after 14 epoch.
 
 - Training curves
-[training curves](mnist/results/trial5_training_curves.png)
+![training curves](mnist/results/trial5_training_curves.png)
 - Normarized confusion matrix
-[cunfution matrix](mnist/results/trial5_confusion_matrix.png)
+<img src="mnist/results/trial5_confusion_matrix.png" width="320px">
 - Missclassified examples (picked the most often occurs one)
-[misclassified data](mnist/results/trial5_misclassification.png)
+    - <img src="mnist/results/trial5_misclassification.png" width="200px">
 ## On Dog vs. Cats dataset
 Use VGG19 with weights pretrained ImageNet dataset as base model to extract features.
 Train classifier with running,
@@ -42,7 +42,7 @@ $ python train_keras.py
 It gets around 96.20% test accuracy after 27 epoch.
 
 - Training curves
-[training curves](dogs-vs-cats/results/trial1_training_curves.png)
+![training curves](dogs-vs-cats/results/trial1_training_curves.png)
 ### References
 - [Confusion matrix — scikit-learn 0.21.3 documentation](https://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html#sphx-glr-auto-examples-model-selection-plot-confusion-matrix-py)
 - [keras/mnist_cnn.py at master · keras-team/keras](https://github.com/keras-team/keras/blob/master/examples/mnist_cnn.py)
