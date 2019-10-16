@@ -10,3 +10,5 @@ __pycache__
 
 # models
 !model_14_0.02_trial5.hdf5
+
+download_dataset.py
