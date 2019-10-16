@@ -190,7 +190,7 @@ print('Test accuracy: {:.5f}'.format(final_test_score[1]))
 # make csv that specifies training details
 import csv
 header = ['prefix= ',prefix]
-with open('results/{}_training_detail.csv'.format(prefix),'w') as f:
+with open('results/{}_training_sammary.csv'.format(prefix),'w') as f:
     writer = csv.writer(f, lineterminator='\n')
     writer.writerow(header)
     writer.writerow([' '])
