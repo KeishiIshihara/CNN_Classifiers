@@ -40,7 +40,7 @@ batch_size = 128 # 128
 num_classes = 10 # numbers are 10 types
 epochs = 15 # epochs
 debug = False # use small data for debugging
-only_evaluate = False # only evaluate the already trained model without train new model
+only_evaluate = True # only evaluate the already trained model without train new model
 img_rows, img_cols = 28, 28 # input image dimensions
 
 # load mnist dataset splited between train and test sets
@@ -201,11 +201,11 @@ print('Test accuracy: {:.5f}'.format(final_test_score[1]))
 
 # make csv that specifies training details
 import csv
-header = ['prefix: ',prefix]
+header = ['prefix= ',prefix]
 with open('results/{}_training_detail.csv'.format(prefix),'w') as f:
     writer = csv.writer(f, lineterminator='\n')
     writer.writerow(header)
-    writer.writerow([''])
+    writer.writerow([' '])
     writer.writerow(['[details]'])
     writer.writerow(['epochs', 'batch size', 'IMG_HEIGHT', 'IMG_WIDTH'])
     writer.writerow([epochs, batch_size, img_rows, img_cols])
@@ -213,7 +213,7 @@ with open('results/{}_training_detail.csv'.format(prefix),'w') as f:
     writer.writerow(['val sample #: ', x_val.shape[0]])
     writer.writerow(['test sample #: ', x_test.shape[0]])
 
-    writer.writerow([''])
+    writer.writerow([' '])
     writer.writerow(['Best model: ']+[best_model_name])
     writer.writerow(['Train loss: ']+[final_train_score[0]])
     writer.writerow(['Train accuracy: ']+[final_train_score[1]])

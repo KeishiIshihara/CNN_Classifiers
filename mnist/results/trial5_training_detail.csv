@@ -1,12 +1,12 @@
-prefix: ,trail5
-""
+prefix: ,trial5
+ 
 [details]
 epochs,batch size,IMG_HEIGHT,IMG_WIDTH
 15,128,28,28
 train sample #: ,48000
 val sample #: ,12000
 test sample #: ,10000
-""
+ 
 Best model: ,models/model_14_0.02_trail5.hdf5
 Train loss: ,0.006133756991663177
 Train accuracy: ,0.9982916712760925
