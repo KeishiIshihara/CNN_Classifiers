@@ -35,12 +35,12 @@ from dnn_modules.callbacks import LearningHistoryCallback, plot_confusion_matrix
 from dnn_modules.get_best_model import getNewestModel
 
 # configs
-prefix = 'pc_test' # for name of data # TODO: automatically dicide this name
+prefix = 'trail5' # for name of data # TODO: automatically dicide this name
 batch_size = 128 # 128
 num_classes = 10 # numbers are 10 types
-epochs = 30 # epochs
-debug = True # use small data for debugging
-only_evaluate = True # only evaluate the already trained model without train new model
+epochs = 15 # epochs
+debug = False # use small data for debugging
+only_evaluate = False # only evaluate the already trained model without train new model
 img_rows, img_cols = 28, 28 # input image dimensions
 
 # load mnist dataset splited between train and test sets
@@ -108,7 +108,7 @@ if not only_evaluate:
 
     # callbacks to be useful when training eg). monitoring training curves
     mc_cb = ModelCheckpoint( # this is for saving the model on each epochs when the model is better
-                    filepath='models/'+prefix+'_model_{epoch:02d}_{val_loss:.2f}.hdf5',
+                    filepath='models/model_{epoch:02d}_{val_loss:.2f}_'+prefix+'.hdf5',
                     monitor='val_loss',
                     verbose=1,
                     save_best_only=True, 
@@ -137,6 +137,7 @@ cnn, best_model_name = getNewestModel('models')
 
 # evaluate the model using test data
 print('Evaluating CNN model..')
+final_train_score = cnn.evaluate(x_train, y_train, verbose=1)
 final_test_score = cnn.evaluate(x_test, y_test, verbose=1)
 
 # evaluation & visualization here
@@ -151,7 +152,7 @@ score = np.max(prediction, axis=1) * 100
 print('Confusion Matrix')
 cm = confusion_matrix(y_test, classified) # sklearn method to calculate CM
 cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis] # normalize
-print(cm)
+# print(cm)
 
 # classification report
 print('Classification Report')
@@ -167,8 +168,8 @@ plot_confusion_matrix(y_test, classified, classes=np.array(target_names),
 misclassified_class = np.array([0 for i in range(num_classes)])
 misclassified_probability = np.array([0. for i in range(num_classes)])
 for i, m in enumerate(cm):
-    misclassified_class[i] = m.argsort()[::-1][1] # secondly largest probability's
-    misclassified_probability[i] = m[misclassified_class[i]] * 100 # secondly largest probability
+    misclassified_class[i] = m.argsort()[::-1][1] # secondly largest probability of misclassify class
+    misclassified_probability[i] = m[misclassified_class[i]] * 100 # secondly largest probability of misclassify
 
 # sample one misclassified data of each classes
 misclassified_label_index = np.where((classified == y_test) == 0)[0]
@@ -180,19 +181,23 @@ for i in range(num_classes):
             break
 print('sampled indices: ',sample_idx)
 
+
 # plot result
 f, axarr = plt.subplots(5, 2, figsize=(7,14))
 for i in range(len(cm)):
     axarr[int(i/2), i%2].axis('off')
-    axarr[int(i/2), i%2].set_title("Classified to {}(={:.1f}%)\n It's chance={:.2f}%".format(classified[sample_idx[i]], score[sample_idx[i]], misclassified_probability[i]))
+    axarr[int(i/2), i%2].set_title("Classified to {}(={:.1f}%)\n Its probability={:.2f}%".format(classified[sample_idx[i]], score[sample_idx[i]], misclassified_probability[i]))
     axarr[int(i/2), i%2].imshow(x_test[sample_idx[i]].reshape(img_rows,img_cols), cmap='gray')
 plt.tight_layout()
 plt.savefig('results/{}_miss-classification.png'.format(prefix))
 print('(result image is saved.)')
 
 print('---')
+print('Ttain loss: {:.5f}'.format(final_train_score[0]))
+print('Train accuracy: {:.5f}'.format(final_train_score[1]))
 print('Test loss: {:.5f}'.format(final_test_score[0]))
 print('Test accuracy: {:.5f}'.format(final_test_score[1]))
+
 
 # make csv that specifies training details
 import csv
@@ -210,5 +215,8 @@ with open('results/{}_training_detail.csv'.format(prefix),'w') as f:
 
     writer.writerow([''])
     writer.writerow(['Best model: ']+[best_model_name])
+    writer.writerow(['Train loss: ']+[final_train_score[0]])
+    writer.writerow(['Train accuracy: ']+[final_train_score[1]])
     writer.writerow(['Test loss: ']+[final_test_score[0]])
     writer.writerow(['Test accuracy: ']+[final_test_score[1]])
+
