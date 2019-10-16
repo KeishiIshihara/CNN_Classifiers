@@ -202,7 +202,7 @@ print('Test accuracy: {:.5f}'.format(final_test_score[1]))
 # sammarize training details and results into csv
 import csv
 header = ['prefix= ',prefix]
-with open('results/{}_training_sammary.csv'.format(prefix),'w') as f:
+with open('results/{}_training_summary.csv'.format(prefix),'w') as f:
     writer = csv.writer(f, lineterminator='\n')
     writer.writerow(header)
     writer.writerow([' '])
