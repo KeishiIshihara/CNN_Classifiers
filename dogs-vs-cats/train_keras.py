@@ -31,8 +31,8 @@ from dnn_modules.get_best_model import getNewestModel
 # ------------------------------------
 # Loading data and Undestanding data
 
-# PATH = '/Users/ishiharakeishi/Downloads/dogs-vs-cats/' # on mac
-PATH = '/home/keishish/ishihara/uef/AI/dogs-vs-cats'
+PATH = '/Users/ishiharakeishi/Downloads/dogs-vs-cats/' # on mac
+# PATH = '/home/keishish/ishihara/uef/AI/dogs-vs-cats'
 train_dir = os.path.join(PATH, 'train')
 val_dir = os.path.join(PATH, 'validation')
 test_dir = os.path.join(PATH, 'test')
