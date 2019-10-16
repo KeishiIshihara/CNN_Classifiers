@@ -35,7 +35,7 @@ from dnn_modules.callbacks import LearningHistoryCallback, plot_confusion_matrix
 from dnn_modules.get_best_model import getNewestModel
 
 # configs
-prefix = 'trail5' # for name of data # TODO: automatically dicide this name
+prefix = 'trial5' # for name of data # TODO: automatically dicide this name
 batch_size = 128 # 128
 num_classes = 10 # numbers are 10 types
 epochs = 15 # epochs
