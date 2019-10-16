@@ -9,4 +9,4 @@ __pycache__
 *.hdf5
 
 # model
-!trial1_30e_model_29_0.003.hdf5
+!trial1_30e_model_29_0.03.hdf5
