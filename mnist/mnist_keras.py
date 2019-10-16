@@ -35,11 +35,11 @@ from dnn_modules.callbacks import LearningHistoryCallback, plot_confusion_matrix
 from dnn_modules.get_best_model import getNewestModel
 
 # configs
-prefix = 'trial5' # for name of data # TODO: automatically dicide this name
+prefix = 'test' # for name of data # TODO: automatically dicide this name
 batch_size = 128 # 128
 num_classes = 10 # numbers are 10 types
-epochs = 15 # epochs
-debug = False # use small data for debugging
+epochs = 3 # epochs
+debug = True # use small data for debugging
 only_evaluate = True # only evaluate the already trained model without train new model
 img_rows, img_cols = 28, 28 # input image dimensions
 
@@ -183,11 +183,11 @@ print('sampled indices: ',sample_idx)
 
 
 # plot result
-f, axarr = plt.subplots(5, 2, figsize=(7,14))
+f, axarr = plt.subplots(2, 5, figsize=(14, 7))
 for i in range(len(cm)):
-    axarr[int(i/2), i%2].axis('off')
-    axarr[int(i/2), i%2].set_title("Classified to {}(={:.1f}%)\n Its probability={:.2f}%".format(classified[sample_idx[i]], score[sample_idx[i]], misclassified_probability[i]))
-    axarr[int(i/2), i%2].imshow(x_test[sample_idx[i]].reshape(img_rows,img_cols), cmap='gray')
+    axarr[int(i/5), i%5].axis('off')
+    axarr[int(i/5), i%5].set_title("Classified to {}(={:.1f}%)\n Its probability={:.2f}%".format(classified[sample_idx[i]], score[sample_idx[i]], misclassified_probability[i]))
+    axarr[int(i/5), i%5].imshow(x_test[sample_idx[i]].reshape(img_rows,img_cols), cmap='gray')
 plt.tight_layout()
 plt.savefig('results/{}_miss-classification.png'.format(prefix))
 print('(result image is saved.)')
