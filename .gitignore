@@ -8,5 +8,5 @@ __pycache__
 *.pdf
 *.hdf5
 
-# model
-!trial1_30e_model_29_0.03.hdf5
+# models
+!model_14_0.02_trial5.hdf5
