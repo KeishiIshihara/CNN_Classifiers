@@ -30,8 +30,7 @@ from dnn_modules.get_best_model import getNewestModel
 
 
 # -------------------------------------------
-#       Loading data and Undestanding data
-#          from certain directory
+#       Load data and Undestand data
 # -------------------------------------------
 PATH = '/Users/ishiharakeishi/Downloads/dogs-vs-cats/' # on mac
 # PATH = '/home/keishish/ishihara/uef/AI/dogs-vs-cats'
@@ -46,6 +45,7 @@ val_dogs_dir = os.path.join(val_dir, 'dogs')      # directory with our validatio
 test_cats_dir = os.path.join(test_dir, 'cats')    # directory with our test cat pictures
 test_dogs_dir = os.path.join(test_dir, 'dogs')    # directory with our test dog pictures
 
+# length of each dataset
 num_cats_tr = len(os.listdir(train_cats_dir))
 num_dogs_tr = len(os.listdir(train_dogs_dir))
 num_cats_val = len(os.listdir(val_cats_dir))
@@ -130,7 +130,7 @@ if show_samples:
 
 
 # -----------------------------------------
-#          Define callbacks
+#            Define callbacks
 # -----------------------------------------
 # this is for saving the model on each epoch ends when only the model is improved
 mc_cb = ModelCheckpoint(filepath='models/model_{epoch:02d}_{val_loss:.2f}_'+prefix+'.hdf5',
@@ -171,6 +171,9 @@ model.compile(loss='binary_crossentropy',
 model.summary() # print model sammary in console
 keras.utils.plot_model(model, to_file='fig_model/'+prefix+'_vgg19_tl.png', show_shapes=True) # save model architecture as png
 
+# -------------------------------------
+#           Train the model
+# -------------------------------------
 # train the model
 model.fit_generator(train_data_gen, # data generator object
                     steps_per_epoch=total_train // batch_size, # number of times to update weight per epoch. 
@@ -180,8 +183,10 @@ model.fit_generator(train_data_gen, # data generator object
                     callbacks=callbacks,
                     verbose=1)
 
-
-# load the best model from directory named models
+# ------------------------------------
+#          Evaluate the model
+# ------------------------------------
+# load the best model from directory named models to evalate the performance
 model, best_model_name = getNewestModel('models')
 
 # evaluate the model using test data
@@ -194,8 +199,7 @@ print('Train accuracy: {:.5f}'.format(final_train_score[1]))
 print('Test loss: {:.5f}'.format(final_test_score[0]))
 print('Test accuracy: {:.5f}'.format(final_test_score[1]))
 
-
-# make csv that specifies training details
+# sammarize training details and results into csv
 import csv
 header = ['prefix= ',prefix]
 with open('results/{}_training_sammary.csv'.format(prefix),'w') as f:

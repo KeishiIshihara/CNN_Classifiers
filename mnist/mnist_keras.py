@@ -199,7 +199,7 @@ print('Test loss: {:.5f}'.format(final_test_score[0]))
 print('Test accuracy: {:.5f}'.format(final_test_score[1]))
 
 
-# make csv that specifies training details
+# sammarize training details and results into csv
 import csv
 header = ['prefix= ',prefix]
 with open('results/{}_training_sammary.csv'.format(prefix),'w') as f:
