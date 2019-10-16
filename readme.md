@@ -1,13 +1,7 @@
 # CNN Classifier with Keras
+For better understanding Convolutional Neural Networks for classification tasks by implementing appropreate model using Keras.  
+Train on MNIST dataset from scrach, and on dogs vs. cats dataset by adopting VGG19 model with weights pretrained on ImageNet dataset.  
 
-## TODO
-- [x] automatically output the training conditions to csv file eg. epochs, data amounts, 
-- [ ] automatically set the prefix
-- [ ] make callback for changing learning rate
-- [x] comment each step
-- [x] make a generator for other dataset which has more amount
-- [x] use ImageGenerator to process image data before training
-- [x] visualize confusion matrix
 
 ### Environments
 - macOS High Sierra 10.13.6
@@ -40,7 +34,7 @@ It gets around 99.47% test accuracy after 14 epoch.
 
 
 ## On Dog vs. Cats dataset
-Use VGG19 with weights pretrained ImageNet dataset as base model to extract features.
+Use VGG19 with weights pretrained ImageNet dataset as base model to extract features.  
 Train classifier with running,
 ```
 $ python train_keras.py
