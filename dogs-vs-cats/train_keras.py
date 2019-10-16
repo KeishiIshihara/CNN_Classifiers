@@ -67,9 +67,9 @@ print("Total validation images:", total_val)
 #  Prepare data generator
 
 show_samples = False
-prefix = 'test'
+prefix = 'trial1_30e'
 batch_size = 64
-epochs = 2
+epochs = 30
 IMG_HEIGHT = 150
 IMG_WIDTH = 150
 
