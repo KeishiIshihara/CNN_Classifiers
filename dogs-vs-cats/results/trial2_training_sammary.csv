@@ -1,0 +1,14 @@
+prefix= ,trial2
+ 
+[details]
+total epochs,batch size,IMG_HEIGHT,IMG_WIDTH
+50,64,150,150
+train sample #: ,24000
+val sample #: ,1000
+test sample #: ,1000
+ 
+Best model: ,models/model_36_0.00_trial2.hdf5
+Train loss: ,0.00022253226779866964
+Train accuracy: ,0.999833345413208
+Test loss: ,0.0460386797785759
+Test accuracy: ,0.9549999833106995
