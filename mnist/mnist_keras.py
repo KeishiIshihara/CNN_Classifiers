@@ -207,12 +207,11 @@ with open('results/{}_training_detail.csv'.format(prefix),'w') as f:
     writer.writerow(header)
     writer.writerow([' '])
     writer.writerow(['[details]'])
-    writer.writerow(['epochs', 'batch size', 'IMG_HEIGHT', 'IMG_WIDTH'])
+    writer.writerow(['total epochs', 'batch size', 'IMG_HEIGHT', 'IMG_WIDTH'])
     writer.writerow([epochs, batch_size, img_rows, img_cols])
     writer.writerow(['train sample #: ', x_train.shape[0]])
     writer.writerow(['val sample #: ', x_val.shape[0]])
     writer.writerow(['test sample #: ', x_test.shape[0]])
-
     writer.writerow([' '])
     writer.writerow(['Best model: ']+[best_model_name])
     writer.writerow(['Train loss: ']+[final_train_score[0]])
