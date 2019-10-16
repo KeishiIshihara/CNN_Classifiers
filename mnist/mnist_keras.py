@@ -35,11 +35,11 @@ from dnn_modules.callbacks import LearningHistoryCallback, plot_confusion_matrix
 from dnn_modules.get_best_model import getNewestModel
 
 # configs
-prefix = 'test' # for name of data # TODO: automatically dicide this name
+prefix = 'trial5' # for name of data # TODO: automatically dicide this name
 batch_size = 128 # 128
 num_classes = 10 # numbers are 10 types
-epochs = 3 # epochs
-debug = True # use small data for debugging
+epochs = 15 # epochs
+debug = False # use small data for debugging
 only_evaluate = True # only evaluate the already trained model without train new model
 img_rows, img_cols = 28, 28 # input image dimensions
 
@@ -82,19 +82,19 @@ y_test = keras.utils.to_categorical(y_test, num_classes)   # 10000 samples
 
 if not only_evaluate:
     # define CNN Architecture using Functional API
-    input_img = Input(shape=input_shape) # this returns a tensor
+    input_img = Input(shape=input_shape)                            # this returns a tensor
     x = Conv2D(32, kernel_size=(3,3), activation='relu')(input_img) # conv layer with 3x3 kernel and relu function
-    x = Conv2D(64, kernel_size=(3,3), activation='relu')(x) # conv layer with 3x3 kernel and relu func
-    x = MaxPooling2D(pool_size=(2, 2))(x) # maxpooling layer, where pools features and convert to half size 
-    x = Dropout(0.25)(x) # dropout layer
-    x = Conv2D(64, kernel_size=(3,3), activation='relu')(x) # conv layer with 3x3 kernel and relu func
-    x = Conv2D(64, kernel_size=(3,3), activation='relu')(x) # conv layer with 3x3 kernel and relu func
-    x = MaxPooling2D(pool_size=(2, 2))(x) # maxpooling layer, where pools features and convert to half size 
-    x = Dropout(0.25)(x) # dropout layer
-    x = Flatten()(x) # flatten the extracted features to input dense layer
-    x = Dense(128, activation='relu')(x) # dense (fully conected) layer with 128 neurons, relu activation
-    x = Dropout(0.5)(x) # dropout layer
-    output = Dense(num_classes, activation='softmax')(x) # the output layer, 10 neurons, softmax activation
+    x = Conv2D(64, kernel_size=(3,3), activation='relu')(x)         # conv layer with 3x3 kernel and relu func
+    x = MaxPooling2D(pool_size=(2, 2))(x)                           # maxpooling layer, where pools features and convert to half size 
+    x = Dropout(0.25)(x)                                            # dropout layer
+    x = Conv2D(64, kernel_size=(3,3), activation='relu')(x)         # conv layer with 3x3 kernel and relu func
+    x = Conv2D(64, kernel_size=(3,3), activation='relu')(x)         # conv layer with 3x3 kernel and relu func
+    x = MaxPooling2D(pool_size=(2, 2))(x)                           # maxpooling layer, where pools features and convert to half size 
+    x = Dropout(0.25)(x)                                            # dropout layer
+    x = Flatten()(x)                                                # flatten the extracted features to input dense layer
+    x = Dense(128, activation='relu')(x)                            # dense (fully conected) layer with 128 neurons, relu activation
+    x = Dropout(0.5)(x)                                             # dropout layer
+    output = Dense(num_classes, activation='softmax')(x)            # the output layer, 10 neurons, softmax activation
 
     # this creates a model
     cnn = Model(inputs=input_img, outputs=output)
@@ -107,12 +107,12 @@ if not only_evaluate:
                 metrics=['accuracy'])
 
     # callbacks to be useful when training eg). monitoring training curves
-    mc_cb = ModelCheckpoint( # this is for saving the model on each epochs when the model is better
+    mc_cb = ModelCheckpoint(                        # this is for saving the model on each epochs when the model is better
                     filepath='models/model_{epoch:02d}_{val_loss:.2f}_'+prefix+'.hdf5',
                     monitor='val_loss',
                     verbose=1,
                     save_best_only=True, 
-                    save_weights_only=False, # if True, save without optimazers to be used eg. retrain 
+                    save_weights_only=False,        # if True, save without optimazers to be used eg. retrain 
                     mode='auto')
     # for monitoring the training curves
     lh_cb = LearningHistoryCallback(prefix=prefix)
@@ -121,7 +121,7 @@ if not only_evaluate:
     callbacks = [mc_cb, lh_cb]
 
     # train the model
-    history = cnn.fit(x_train, y_train, # training data and label
+    history = cnn.fit(x_train, y_train,             # training data and label
                     batch_size=batch_size,
                     epochs=epochs,
                     verbose=1,
@@ -189,7 +189,7 @@ for i in range(len(cm)):
     axarr[int(i/5), i%5].set_title("Classified to {}(={:.1f}%)\n Its probability={:.2f}%".format(classified[sample_idx[i]], score[sample_idx[i]], misclassified_probability[i]))
     axarr[int(i/5), i%5].imshow(x_test[sample_idx[i]].reshape(img_rows,img_cols), cmap='gray')
 plt.tight_layout()
-plt.savefig('results/{}_miss-classification.png'.format(prefix))
+plt.savefig('results/{}_misclassification.png'.format(prefix))
 print('(result image is saved.)')
 
 print('---')

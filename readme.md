@@ -27,14 +27,18 @@ $ python mnist_keras.py
 ```
 It gets around 99.47% test accuracy after 14 epoch.
 
-- Training curves
+### Training curves
 ![training curves](mnist/results/trial5_training_curves.png)
 
-- Normarized confusion matrix
+### Normarized confusion matrix
+
 <img src="mnist/results/trial5_confusion_matrix.png" width="500px">
 
-- Missclassified examples (picked the most often occurs one)
-<img src="mnist/results/trial5_misclassification.png" width="200px">
+### Misclassified examples (picked the most often occurs one)
+
+<img src="mnist/results/trial5_misclassification.png" width="700px">
+
+
 ## On Dog vs. Cats dataset
 Use VGG19 with weights pretrained ImageNet dataset as base model to extract features.
 Train classifier with running,
@@ -43,7 +47,7 @@ $ python train_keras.py
 ```
 It gets around 96.20% test accuracy after 27 epoch.
 
-- Training curves
+### Training curves
 ![training curves](dogs-vs-cats/results/trial2_training_curves.png)
 
 
