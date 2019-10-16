@@ -26,11 +26,13 @@ from keras.models import Model
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, classification_report
 from keras.callbacks import ModelCheckpoint
-from dnn_modules.callbacks import LearningHistoryCallback, plot_confusion_matrix
-from dnn_modules.get_best_model import getNewestModel
 import numpy as np
 import matplotlib.pyplot as plt
 
+import os, sys 
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+from dnn_modules.callbacks import LearningHistoryCallback, plot_confusion_matrix
+from dnn_modules.get_best_model import getNewestModel
 
 # configs
 prefix = 'pc_test' # for name of data # TODO: automatically dicide this name
