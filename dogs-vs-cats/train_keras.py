@@ -2,7 +2,7 @@ from __future__ import print_function
 # --------------------------------------------
 #  CNNs classifier to classify dogs and cats.
 #  Train the model by transfer learning 
-#  using VGG19 pretrained on Imagenet
+#  using VGG19 pretrained on Imagenet.
 # --------------------------------------------
 
 import tensorflow as tf
@@ -33,7 +33,7 @@ from dnn_modules.get_best_model import getNewestModel
 #       Load data and Undestand data
 # -------------------------------------------
 PATH = '/Users/ishiharakeishi/Downloads/dogs-vs-cats/' # on mac
-# PATH = '/home/keishish/ishihara/uef/AI/dogs-vs-cats'
+# PATH = '/home/keishish/ishihara/uef/AI/dogs-vs-cats' # on ubuntu
 train_dir = os.path.join(PATH, 'train')
 val_dir = os.path.join(PATH, 'validation')
 test_dir = os.path.join(PATH, 'test')

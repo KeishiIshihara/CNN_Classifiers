@@ -1,10 +1,10 @@
 # CNN Classifier with Keras
-For better understanding Convolutional Neural Networks for classification tasks by implementing appropreate model using Keras.  
+For better understanding Convolutional Neural Networks for classification tasks by implementing appropreate model using Keras.
 Train on MNIST dataset from scrach, and on dogs vs. cats dataset by adopting VGG19 model with weights pretrained on ImageNet dataset.  
 
 
 ### Environments
-- macOS High Sierra 10.13.6
+- macOS High Sierra 10.13.6 or Ubuntu 18.04 with Geforce GTX 1080
 - Python 3.6.7
 - Keras 2.3.0
 - tensorflow(-gpu) 1.14.0 (backend)
