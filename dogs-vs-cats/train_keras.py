@@ -1,11 +1,8 @@
 from __future__ import print_function
-
 # --------------------------------------------
 #  CNNs classifier to classify dogs and cats.
 #  Train the model by transfer learning 
 #  using VGG16 with imagenet weights
-#
-#    (c) Keishi Ishihara
 # --------------------------------------------
 
 import tensorflow as tf
@@ -20,13 +17,13 @@ from keras.models import Sequential, Model
 from keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, GlobalAveragePooling2D, Input
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import ModelCheckpoint
-from callbacks import LearningHistoryCallback, plot_confusion_matrix
-from get_best_model import getNewestModel
+from dnn_modules.callbacks import LearningHistoryCallback, plot_confusion_matrix
+from dnn_modules.get_best_model import getNewestModel
 from keras.optimizers import SGD
 from keras.applications.vgg16 import VGG16
-# from keras.applications.resnet50 import ResNet50
 
 import os, sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -88,8 +85,9 @@ val_data_gen = validation_image_generator.flow_from_directory(batch_size=batch_s
                                                               class_mode='binary')
 
 
-# This function will plot images in the form of a grid 
-# with 1 row and 5 columns where images are placed in each column.
+# --------------------------------------------------
+#  Data sample plotting
+
 def plotImages(images_arr, fname):
     fig, axes = plt.subplots(1, 5, figsize=(20,20))
     axes = axes.flatten()
@@ -107,7 +105,6 @@ if show_samples:
     sample_val_images, label = next(val_data_gen) # validation sample
     plotImages(sample_val_images[:5], 'ex_val.png')
     print(label[:5])
-
 
 
 # ------------------------------------------------
@@ -149,7 +146,7 @@ model.compile(loss='binary_crossentropy',
               metrics=['accuracy'])
 
 model.summary() # print model sammary in console
-keras.utils.plot_model(model, to_file='models/'+prefix+'_vgg16_tl.png', show_shapes=True) # save model architecture as png
+keras.utils.plot_model(model, to_file='fig_model/'+prefix+'_vgg16_tl.png', show_shapes=True) # save model architecture as png
 
 # train the model
 history = model.fit_generator(
@@ -162,30 +159,42 @@ history = model.fit_generator(
     verbose=1
 )
 
+model, best_model_name = getNewestModel('models')
 
-# model = getNewestModel('models')
+# evaluate the model using test data
+print('Evaluating CNN model..')
+final_score = model.evaluate_generator(val_data_gen, verbose=1)
+print('---')
+print('Test loss: {:.5f}'.format(final_score[0]))
+print('Test accuracy: {:.5f}'.format(final_score[1]))
 
-acc = history.history['accuracy']
-val_acc = history.history['val_accuracy']
+# make csv that specifies training details
+import csv
+header = ['prefix', 'epochs', 'batch size', 'IMG_HEIGHT', 'IMG_WIDTH' ]
+with open('results/{}_training_detail.csv'.format(prefix),'w') as f:
+    writer = csv.writer(f, lineterminator='\n')
+    writer.writerow(header)
+    writer.writerow([prefix, epochs, batch_size,IMG_HEIGHT,IMG_WIDTH])
+    writer.writerow([''])
+    writer.writerow(['Best model:']+[best_model_name])
+    writer.writerow(['Test loss:']+[final_score[0]])
+    writer.writerow(['Test accuracy:']+[[final_score[1]]])
 
-loss = history.history['loss']
-val_loss = history.history['val_loss']
+# make csv that specifies training details
+import csv
+header = ['prefix: ',prefix]
+with open('results/{}_training_detail.csv'.format(prefix),'w') as f:
+    writer = csv.writer(f, lineterminator='\n')
+    writer.writerow(header)
+    writer.writerow([''])
+    writer.writerow(['[details]'])
+    writer.writerow(['epochs', 'batch size', 'IMG_HEIGHT', 'IMG_WIDTH'])
+    writer.writerow([epochs, batch_size,IMG_HEIGHT,IMG_WIDTH]])
+    # writer.writerow(['train sample #: ', x_train.shape[0]])
+    # writer.writerow(['val sample #: ', x_val.shape[0]])
+    # writer.writerow(['test sample #: ', x_test.shape[0]])
 
-epochs_range = range(epochs)
-
-plt.figure(figsize=(8, 8))
-plt.subplot(1, 2, 1)
-plt.plot(epochs_range, acc, label='Training Accuracy')
-plt.plot(epochs_range, val_acc, label='Validation Accuracy')
-plt.legend(loc='lower right')
-plt.title('Training and Validation Accuracy')
-
-plt.subplot(1, 2, 2)
-plt.plot(epochs_range, loss, label='Training Loss')
-plt.plot(epochs_range, val_loss, label='Validation Loss')
-plt.legend(loc='upper right')
-plt.title('Training and Validation Loss')
-plt.savefig('results/{}_result.png'.format(prefix))
-
-
-
+    writer.writerow([''])
+    writer.writerow(['Best model:']+[best_model_name])
+    writer.writerow(['Test loss:']+[final_score[0]])
+    writer.writerow(['Test accuracy:']+[[final_score[1]]])
