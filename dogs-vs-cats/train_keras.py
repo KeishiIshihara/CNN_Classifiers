@@ -28,9 +28,11 @@ from dnn_modules.callbacks import LearningHistoryCallback, plot_confusion_matrix
 from dnn_modules.get_best_model import getNewestModel
 
 
-# ------------------------------------
-# Loading data and Undestanding data
 
+# -------------------------------------------
+#       Loading data and Undestanding data
+#          from certain directory
+# -------------------------------------------
 PATH = '/Users/ishiharakeishi/Downloads/dogs-vs-cats/' # on mac
 # PATH = '/home/keishish/ishihara/uef/AI/dogs-vs-cats'
 train_dir = os.path.join(PATH, 'train')
@@ -68,40 +70,45 @@ print("Total validation images:", total_val)
 print("Total test images:", total_test)
 
 
-# ---------------------------------
-#  Prepare data generator
+# -------------------------------------
+#         Define data generators 
+# -------------------------------------
+# he entire dataset is too learge to load into RAM (probably),
+# it is necessary to load them in batch data.
+# Here, the generators are defined for train, validation and test data.
 
-show_samples = False
-prefix = 'trial2'
-batch_size = 64
-epochs = 50
-IMG_HEIGHT = 150
-IMG_WIDTH = 150
+show_samples = False # if true, produce 5 sample images as png.
+prefix = 'trial2'    # prefix
+batch_size = 64      # batch size
+epochs = 50          # epochs
+IMG_HEIGHT = 150     # all images will be resized
+IMG_WIDTH = 150      # to certain size to feed neural networks
 
-train_image_generator = ImageDataGenerator(rescale=1./255)       # Generator for training data
-val_image_generator = ImageDataGenerator(rescale=1./255)  # Generator for validation data
-test_image_generator = ImageDataGenerator(rescale=1./255)  # Generator for test data
+train_image_generator = ImageDataGenerator(rescale=1./255)   # Generator for training data
+val_image_generator = ImageDataGenerator(rescale=1./255)     # Generator for validation data
+test_image_generator = ImageDataGenerator(rescale=1./255)    # Generator for test data
 
-train_data_gen = train_image_generator.flow_from_directory(batch_size=batch_size,
+# these instances produce a batch data from directory
+train_data_gen = train_image_generator.flow_from_directory(batch_size=batch_size, 
                                                            directory=train_dir,
                                                            shuffle=True,
-                                                           target_size=(IMG_HEIGHT, IMG_WIDTH), # all images are resized fixed shape
+                                                           target_size=(IMG_HEIGHT, IMG_WIDTH),
                                                            class_mode='binary')
 
 val_data_gen = val_image_generator.flow_from_directory(batch_size=batch_size,
-                                                              directory=val_dir,
-                                                              target_size=(IMG_HEIGHT, IMG_WIDTH), 
-                                                              class_mode='binary')
+                                                       directory=val_dir,
+                                                       target_size=(IMG_HEIGHT, IMG_WIDTH),
+                                                       class_mode='binary')
 
 test_data_gen = test_image_generator.flow_from_directory(batch_size=batch_size,
-                                                              directory=test_dir,
-                                                              target_size=(IMG_HEIGHT, IMG_WIDTH), 
-                                                              class_mode='binary')
+                                                         directory=test_dir,
+                                                         target_size=(IMG_HEIGHT, IMG_WIDTH),
+                                                         class_mode='binary')
 
 
-# --------------------------------------------------
-#  Data sample plotting
-
+# --------------------------------------
+#         Sample data plotting
+# --------------------------------------
 def plotImages(images_arr, fname):
     fig, axes = plt.subplots(1, 5, figsize=(20,20))
     axes = axes.flatten()
@@ -112,45 +119,47 @@ def plotImages(images_arr, fname):
     plt.savefig(fname)
 
 if show_samples:
-    sample_training_images, label = next(train_data_gen) # training sample
+    # training sample
+    sample_training_images, label = next(train_data_gen)
     plotImages(sample_training_images[:5], 'ex_train.png')
     print(label[:5])
-
-    sample_val_images, label = next(val_data_gen) # validation sample
+    # validation sample
+    sample_val_images, label = next(val_data_gen)
     plotImages(sample_val_images[:5], 'ex_val.png')
     print(label[:5])
 
 
-# ------------------------------------------------
-#  Define callbacks
+# -----------------------------------------
+#          Define callbacks
+# -----------------------------------------
+# this is for saving the model on each epoch ends when only the model is improved
+mc_cb = ModelCheckpoint(filepath='models/model_{epoch:02d}_{val_loss:.2f}_'+prefix+'.hdf5',
+                        monitor='val_loss',
+                        verbose=1,
+                        save_best_only=True, 
+                        save_weights_only=False, # if True, save without optimazers to be used eg. retrain
+                        mode='auto')
 
-mc_cb = ModelCheckpoint( # this is for saving the model on each epochs when the model is better
-                filepath='models/model_{epoch:02d}_{val_loss:.2f}_'+prefix+'.hdf5',
-                monitor='val_loss',
-                verbose=1,
-                save_best_only=True, 
-                save_weights_only=False, # if True, save without optimazers to be used eg. retrain 
-                mode='auto')
 # for monitoring the training curves
 lh_cb = LearningHistoryCallback(prefix=prefix)
 callbacks = [mc_cb, lh_cb]
 
 
-# ------------------------------------------------
-#  Build Model from VGG19 trained with imagenet 
-
-## base model: VGG19 with imagenet weights
+# ---------------------------------------------------
+#    Build Model from VGG19 pretrained on Imagenet 
+# ---------------------------------------------------
+## base model: VGG19 with weights
 input_tensor = Input(shape=(IMG_HEIGHT, IMG_WIDTH, 3)) # input tensor
-base_model = VGG19(weights='imagenet', include_top=False, input_tensor=input_tensor) # load vgg16 model
+base_model = VGG19(weights='imagenet', include_top=False, input_tensor=input_tensor) # load VGG19 model
 
-## Classifier (FC layers)
+# classifier (Output layers)
 x = base_model.output
 x = GlobalAveragePooling2D()(x)
 x = Dense(1024, activation='relu')(x)
-predictions = Dense(1, activation='sigmoid')(x)
+predictions = Dense(1, activation='sigmoid')(x) # Outputs are between 0 to 1. 0 means cat, 1 means dog.
 model = Model(inputs=base_model.input, outputs=predictions)
 
-# freeze base model parameters
+# freeze base model parameters 
 for layer in base_model.layers[:15]:
    layer.trainable = False
 
@@ -163,18 +172,17 @@ model.summary() # print model sammary in console
 keras.utils.plot_model(model, to_file='fig_model/'+prefix+'_vgg19_tl.png', show_shapes=True) # save model architecture as png
 
 # train the model
-history = model.fit_generator(
-    train_data_gen,
-    steps_per_epoch=total_train // batch_size,
-    epochs=epochs,
-    validation_data=val_data_gen,
-    validation_steps=total_val // batch_size,
-    callbacks=callbacks,
-    verbose=1
-)
+model.fit_generator(train_data_gen, # data generator object
+                    steps_per_epoch=total_train // batch_size, # number of times to update weight per epoch. 
+                    epochs=epochs,
+                    validation_data=val_data_gen,
+                    validation_steps=total_val // batch_size, # // means truncate division
+                    callbacks=callbacks,
+                    verbose=1)
 
+
+# load the best model from directory named models
 model, best_model_name = getNewestModel('models')
-
 
 # evaluate the model using test data
 print('Evaluating CNN model..')
