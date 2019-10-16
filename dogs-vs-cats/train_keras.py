@@ -1,9 +1,12 @@
 from __future__ import print_function
-# --------------------------------------------
+# -----------------------------------------------
 #  CNNs classifier to classify dogs and cats.
 #  Train the model by transfer learning 
 #  using VGG19 pretrained on Imagenet.
-# --------------------------------------------
+#
+#  Reference:
+#  https://www.tensorflow.org/tutorials/images/classification
+# -----------------------------------------------
 
 import tensorflow as tf
 from keras import backend as K
@@ -145,9 +148,9 @@ lh_cb = LearningHistoryCallback(prefix=prefix)
 callbacks = [mc_cb, lh_cb]
 
 
-# ---------------------------------------------------
-#    Build Model from VGG19 pretrained on Imagenet 
-# ---------------------------------------------------
+# -------------------------------------------------------
+#    Build model based on VGG19 pretrained on ImageNet 
+# -------------------------------------------------------
 ## base model: VGG19 with weights
 input_tensor = Input(shape=(IMG_HEIGHT, IMG_WIDTH, 3)) # input tensor
 base_model = VGG19(weights='imagenet', include_top=False, input_tensor=input_tensor) # load VGG19 model

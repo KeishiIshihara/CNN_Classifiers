@@ -23,6 +23,7 @@ It gets around 99.47% test accuracy after 14 epoch.
 
 ### Training curves
 ![training curves](mnist/results/trial5_training_curves.png)
+*Note: [machine learning - Higher validation accuracy, than training accurracy using Tensorflow and Keras - Stack Overflow](https://stackoverflow.com/questions/43979449/higher-validation-accuracy-than-training-accurracy-using-tensorflow-and-keras)
 
 ### Normarized confusion matrix
 
