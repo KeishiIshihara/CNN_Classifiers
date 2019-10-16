@@ -26,8 +26,8 @@ from keras.models import Model
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, classification_report
 from keras.callbacks import ModelCheckpoint
-from callbacks import LearningHistoryCallback, plot_confusion_matrix
-from get_best_model import getNewestModel
+from dnn_modules.callbacks import LearningHistoryCallback, plot_confusion_matrix
+from dnn_modules.get_best_model import getNewestModel
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -97,7 +97,7 @@ if not only_evaluate:
     # this creates a model
     cnn = Model(inputs=input_img, outputs=output)
     cnn.summary() # visualize model in console
-    keras.utils.plot_model(cnn, to_file='models/'+prefix+'_model_cnn.png', show_shapes=True) # save model architecture as png
+    keras.utils.plot_model(cnn, to_file='fig_model/'+prefix+'_model_cnn.png', show_shapes=True) # save model architecture as png
 
     # configure its learning process with compile() method
     cnn.compile(loss=keras.losses.categorical_crossentropy,
@@ -106,7 +106,7 @@ if not only_evaluate:
 
     # callbacks to be useful when training eg). monitoring training curves
     mc_cb = ModelCheckpoint( # this is for saving the model on each epochs when the model is better
-                    filepath='models/fig/'+prefix+'_model_{epoch:02d}_{val_loss:.2f}.hdf5',
+                    filepath='models/'+prefix+'_model_{epoch:02d}_{val_loss:.2f}.hdf5',
                     monitor='val_loss',
                     verbose=1,
                     save_best_only=True, 
@@ -131,11 +131,11 @@ if not only_evaluate:
 
 
 # load the best model from directory named models
-cnn = getNewestModel('models')
+cnn, best_model_name = getNewestModel('models')
 
 # evaluate the model using test data
 print('Evaluating CNN model..')
-final_score = cnn.evaluate(x_test, y_test, verbose=1)
+final_test_score = cnn.evaluate(x_test, y_test, verbose=1)
 
 # evaluation & visualization here
 y_test = np.argmax(y_test, axis=1) # reconvert from one-hot vector to label(scalar)
@@ -189,5 +189,24 @@ plt.savefig('results/{}_miss-classification.png'.format(prefix))
 print('(result image is saved.)')
 
 print('---')
-print('Test loss: {:.5f}'.format(final_score[0]))
-print('Test accuracy: {:.5f}'.format(final_score[1]))
+print('Test loss: {:.5f}'.format(final_test_score[0]))
+print('Test accuracy: {:.5f}'.format(final_test_score[1]))
+
+# make csv that specifies training details
+import csv
+header = ['prefix: ',prefix]
+with open('results/{}_training_detail.csv'.format(prefix),'w') as f:
+    writer = csv.writer(f, lineterminator='\n')
+    writer.writerow(header)
+    writer.writerow([''])
+    writer.writerow(['[details]'])
+    writer.writerow(['epochs', 'batch size', 'IMG_HEIGHT', 'IMG_WIDTH'])
+    writer.writerow([epochs, batch_size, img_rows, img_cols])
+    writer.writerow(['train sample #: ', x_train.shape[0]])
+    writer.writerow(['val sample #: ', x_val.shape[0]])
+    writer.writerow(['test sample #: ', x_test.shape[0]])
+
+    writer.writerow([''])
+    writer.writerow(['Best model: ']+[best_model_name])
+    writer.writerow(['Test loss: ']+[final_test_score[0]])
+    writer.writerow(['Test accuracy: ']+[final_test_score[1]])

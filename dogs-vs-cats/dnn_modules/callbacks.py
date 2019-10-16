@@ -46,8 +46,9 @@ class LearningHistoryCallback(Callback):
             axL.set_title('Training Loss')
             axL.set_xlabel('Epoch #')
             axL.set_ylabel('Loss')
-            axL.set_xticks(N)
-            axL.set_xticklabels(N)
+            if epoch < 10:
+                axL.set_xticks(N)
+                axL.set_xticklabels(N)
             axL.legend(loc='upper right')
 
             axR.plot(N, self.train_acc, label='train_acc')
@@ -55,8 +56,9 @@ class LearningHistoryCallback(Callback):
             axR.set_title('Training Accuracy')
             axR.set_xlabel('Epoch #')
             axR.set_ylabel('Accuracy')
-            axR.set_xticks(N)
-            axR.set_xticklabels(N)
+            if epoch < 10:
+                axR.set_xticks(N)
+                axR.set_xticklabels(N)
             axR.legend(loc='lower right')
             plt.savefig('results/{}_training_curves.png'.format(self.prefix))
             plt.close()

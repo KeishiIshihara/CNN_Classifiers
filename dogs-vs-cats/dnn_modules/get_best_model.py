@@ -20,4 +20,4 @@ def getNewestModel(dirname):
         newestModel = sorted(files, key=lambda files: files[1])[-1]
         print('newestModel (best model) is',newestModel[0])
         model = models.load_model(newestModel[0])
-        return model
+        return model, newestModel[0]
