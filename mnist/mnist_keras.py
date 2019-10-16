@@ -37,8 +37,8 @@ prefix = 'pc_test' # for name of data # TODO: automatically dicide this name
 batch_size = 128 # 128
 num_classes = 10 # numbers are 10 types
 epochs = 30 # epochs
-debug = False # use small data for debugging
-only_evaluate = False # only evaluate the already trained model without train new model
+debug = True # use small data for debugging
+only_evaluate = True # only evaluate the already trained model without train new model
 img_rows, img_cols = 28, 28 # input image dimensions
 
 # load mnist dataset splited between train and test sets
@@ -106,7 +106,7 @@ if not only_evaluate:
 
     # callbacks to be useful when training eg). monitoring training curves
     mc_cb = ModelCheckpoint( # this is for saving the model on each epochs when the model is better
-                    filepath='models/'+prefix+'_model_{epoch:02d}_{val_loss:.2f}.hdf5',
+                    filepath='models/fig/'+prefix+'_model_{epoch:02d}_{val_loss:.2f}.hdf5',
                     monitor='val_loss',
                     verbose=1,
                     save_best_only=True, 
