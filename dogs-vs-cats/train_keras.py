@@ -2,7 +2,7 @@ from __future__ import print_function
 # --------------------------------------------
 #  CNNs classifier to classify dogs and cats.
 #  Train the model by transfer learning 
-#  using VGG19 with imagenet weights
+#  using VGG19 pretrained on Imagenet
 # --------------------------------------------
 
 import tensorflow as tf
@@ -72,9 +72,9 @@ print("Total test images:", total_test)
 #  Prepare data generator
 
 show_samples = False
-prefix = 'trial1'
+prefix = 'trial2'
 batch_size = 64
-epochs = 30
+epochs = 50
 IMG_HEIGHT = 150
 IMG_WIDTH = 150
 
