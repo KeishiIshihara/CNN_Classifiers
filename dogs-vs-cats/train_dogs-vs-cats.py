@@ -1,18 +1,21 @@
 from __future__ import print_function
-# -----------------------------------------------
+# =================================================
 #  CNNs classifier to classify dogs and cats.
 #  Train the model by transfer learning 
 #  using VGG19 pretrained on Imagenet.
 #
 #  Reference:
 #  https://www.tensorflow.org/tutorials/images/classification
-# -----------------------------------------------
+# =================================================
+
+import warnings
+warnings.filterwarnings('ignore')
 
 import tensorflow as tf
 from keras import backend as K
-config = tf.ConfigProto()
+config = tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth = True
-sess = tf.Session(config=config)
+sess = tf.compat.v1.Session(config=config)
 K.set_session(sess)
 
 import keras
@@ -23,7 +26,7 @@ from keras.callbacks import ModelCheckpoint
 from keras.optimizers import SGD
 from keras.applications.vgg19 import VGG19
 
-import os, sys
+import os, sys, argparse
 import numpy as np
 import matplotlib.pyplot as plt
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
@@ -31,11 +34,23 @@ from dnn_modules.callbacks import LearningHistoryCallback, plot_confusion_matrix
 from dnn_modules.get_best_model import getNewestModel
 
 
+# arguments
+parser = argparse.ArgumentParser(description='CNN trainer on Dogs vs. Cats dataset')
+parser.add_argument('-s','--show-samples', action='store_true', default=False, help='Save figure of data sample')
+parser.add_argument('-e','--epochs', default=10, type=int, help='Number of epochs you run (default 10)')
+parser.add_argument('-b','--batch-size', default=64, type=int, help='Batch size (default 128)')
+parser.add_argument('-p','--prefix', default='test', type=str, help='prefix to be added to result filenames (default \'test\')')
+args = parser.parse_args()
+
+
 # -------------------------------------------
 #       Load data and Undestand data
 # -------------------------------------------
-PATH = '/Users/ishiharakeishi/Downloads/dogs-vs-cats/' # on mac
-# PATH = '/home/keishish/ishihara/uef/AI/dogs-vs-cats' # on ubuntu
+# PATH = '/Users/ishiharakeishi/Downloads/dogs-vs-cats/' # on mac
+# PATH = '/home/keishish/ishihara/uef/AI/dogs-vs-cats'   # on ubuntu
+PATH = os.path.dirname(os.path.abspath(__file__)) + '/dataset'
+print(PATH)
+sys.exit()
 train_dir = os.path.join(PATH, 'train')
 val_dir = os.path.join(PATH, 'validation')
 test_dir = os.path.join(PATH, 'test')
@@ -59,17 +74,18 @@ total_train = num_cats_tr + num_dogs_tr
 total_val = num_cats_val + num_dogs_val
 total_test = num_cats_test + num_dogs_test
 
-print('total training cat images:', num_cats_tr)
-print('total training dog images:', num_dogs_tr)
-print('total validation cat images:', num_cats_val)
-print('total validation dog images:', num_dogs_val)
-print('total test cat images:', num_cats_test)
-print('total test dog images:', num_dogs_test)
+print('training cat images #:    ', num_cats_tr)
+print('training dog images #:    ', num_dogs_tr)
+print('validation cat images #:  ', num_cats_val)
+print('validation dog images #:  ', num_dogs_val)
+print('test cat images #:        ', num_cats_test)
+print('test dog images #:        ', num_dogs_test)
 
-print("--")
-print("Total training images:", total_train)
-print("Total validation images:", total_val)
-print("Total test images:", total_test)
+print('--')
+print('Total training images #:  ', total_train)
+print('Total validation images #:', total_val)
+print('Total test images #:      ', total_test)
+print('--')
 
 
 # -------------------------------------
@@ -79,16 +95,16 @@ print("Total test images:", total_test)
 # it is necessary to load them in batch data.
 # Here, the generators are defined for train, validation and test data.
 
-show_samples = False # if true, produce 5 sample images as png.
-prefix = 'trial2'    # prefix
-batch_size = 64      # batch size
-epochs = 50          # epochs
-IMG_HEIGHT = 150     # all images will be resized
-IMG_WIDTH = 150      # to certain size to feed neural networks
+show_samples = args.show_samples # if true, produce 5 sample images as png.
+prefix = args.prefix             # prefix
+batch_size = args.batch_size     # bath size (default 64)
+epochs = args.epochs             # epochs (default 10)
+IMG_HEIGHT = 150                 # all images will be resized
+IMG_WIDTH = 150                  # to this size to feed neural networks
 
 # make folders for storing results
 os.makedirs('fig_model', exist_ok=True)
-os.makedirs('models', exist_ok=True)
+os.makedirs('models/{}'.format(prefix), exist_ok=True)
 os.makedirs('results', exist_ok=True)
 
 train_image_generator = ImageDataGenerator(rescale=1./255)   # Generator for training data
@@ -117,7 +133,7 @@ test_data_gen = test_image_generator.flow_from_directory(batch_size=batch_size,
 #         Sample data plotting
 # --------------------------------------
 def plotImages(images_arr, fname):
-    fig, axes = plt.subplots(1, 5, figsize=(20,20))
+    _, axes = plt.subplots(1, 5, figsize=(20,20))
     axes = axes.flatten()
     for img, ax in zip( images_arr, axes):
         ax.imshow(img)
@@ -140,7 +156,7 @@ if show_samples:
 #            Define callbacks
 # -----------------------------------------
 # this is for saving the model on each epoch ends when only the model is improved
-mc_cb = ModelCheckpoint(filepath='models/model_e{epoch:02d}_l{val_loss:.2f}_'+prefix+'.hdf5',
+mc_cb = ModelCheckpoint(filepath='models/'+prefix+'/model_e{epoch:02d}_l{val_loss:.2f}_'+prefix+'.hdf5',
                         monitor='val_loss',
                         verbose=1,
                         save_best_only=True, 
@@ -178,6 +194,7 @@ model.compile(loss='binary_crossentropy',
 model.summary() # print model sammary in console
 keras.utils.plot_model(model, to_file='fig_model/'+prefix+'_vgg19_tl.png', show_shapes=True) # save model architecture as png
 
+
 # -------------------------------------
 #           Train the model
 # -------------------------------------
@@ -189,6 +206,7 @@ model.fit_generator(train_data_gen, # data generator object
                     validation_steps=total_val // batch_size, # // means truncate division
                     callbacks=callbacks,
                     verbose=1)
+
 
 # ------------------------------------
 #          Evaluate the model
