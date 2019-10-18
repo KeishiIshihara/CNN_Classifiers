@@ -44,13 +44,12 @@ It gets around 99.47% test accuracy after 14 epoch.
 
 
 ## On Dog vs. Cats dataset
-Use VGG19 with weights pretrained ImageNet[^2] dataset as base model to extract features.  
+Use VGG19 with weights pretrained ImageNet dataset as base model to extract features.  
 Train classifier by running,
 ```bash
 # cd dogs-vs-cats/
 $ python train_dogs-vs-cats.py -e 10 -b 64 --prefix Trial1
 ```
-**Note: I don't recommend you to set batch size too large. My pc suddenly shut down because PSU resource was not enough.  
 
 It gets around 96.20% test accuracy after 27 epoch.
 
