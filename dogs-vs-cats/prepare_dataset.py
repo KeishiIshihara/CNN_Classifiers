@@ -57,7 +57,7 @@ print('---')
 # --------------------------
 #       Unzip dataset
 # --------------------------
-print('step1: unziping dataset..')
+print('step1: unziping dogs-vs-cats.zip..')
 try:
     with zipfile.ZipFile(os.path.join(source_dir,'dogs-vs-cats.zip'), 'r') as f:
         f.extractall(base_dir)

@@ -46,11 +46,7 @@ args = parser.parse_args()
 # -------------------------------------------
 #       Load data and Undestand data
 # -------------------------------------------
-# PATH = '/Users/ishiharakeishi/Downloads/dogs-vs-cats/' # on mac
-# PATH = '/home/keishish/ishihara/uef/AI/dogs-vs-cats'   # on ubuntu
 PATH = os.path.dirname(os.path.abspath(__file__)) + '/dataset'
-print(PATH)
-sys.exit()
 train_dir = os.path.join(PATH, 'train')
 val_dir = os.path.join(PATH, 'validation')
 test_dir = os.path.join(PATH, 'test')
