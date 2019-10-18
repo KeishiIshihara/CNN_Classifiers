@@ -1,11 +1,11 @@
 from __future__ import print_function
 
-# ----------------------------------------------
+# =================================================
 #  CNNs classifier to classify on MNIST dataset
 #  with comments for better understanding
 #
 #    (c) Keishi Ishihara
-# ----------------------------------------------
+# =================================================
 
 '''This might be helpful also for coding with keras'''
 '''After 30 epoch it gets 0.99470 accuracy (loss=0.01696) with model model is trail4_30e_model_20_0.02.hdf5'''
@@ -29,26 +29,37 @@ from keras.callbacks import ModelCheckpoint
 import numpy as np
 import matplotlib.pyplot as plt
 
-import os, sys 
+import os, sys, argparse
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from dnn_modules.callbacks import LearningHistoryCallback, plot_confusion_matrix
 from dnn_modules.get_best_model import getNewestModel
 
 
+# arguments
+parser = argparse.ArgumentParser(description='CNN trainer on MNIST dataset')
+parser.add_argument('-d','--debug', action='store_true', default=False, help='With small amount of data for faster debug')
+parser.add_argument('-o','--only-evaluate', action='store_true', default=False, help='Evaluate existing model without training')
+parser.add_argument('-e','--epochs', default=10, type=int, help='Number of epochs you run (default 10)')
+parser.add_argument('-b','--batch-size', default=128, type=int, help='Batch size (default 128)')
+parser.add_argument('-p','--prefix', default='test', type=str, help='prefix to be added to result filenames (default \'test\')')
+args = parser.parse_args()
+
 # configs
-prefix = 'trial5' # for name of data # TODO: automatically dicide this name
-batch_size = 128 # 128
+prefix = args.prefix # to be added to name of results
+batch_size = args.batch_size # default 128
+epochs = args.epochs # epochs
+debug = args.debug # use small data for debugging
+only_evaluate = args.only_evaluate # only evaluate the already trained model without train new model
 num_classes = 10 # numbers are 10 types
-epochs = 15 # epochs
-debug = False # use small data for debugging
-only_evaluate = True # only evaluate the already trained model without train new model
 img_rows, img_cols = 28, 28 # input image dimensions
 
 # make folders for storing results
 os.makedirs('fig_model', exist_ok=True)
-os.makedirs('models', exist_ok=True)
+os.makedirs('models/{}'.format(prefix), exist_ok=True)
 os.makedirs('results', exist_ok=True)
 
+
+# --------------- Trainer starts here -------------------------
 
 # load mnist dataset splited between train and test sets
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
@@ -64,8 +75,8 @@ input_shape = (img_rows, img_cols, 1)
 x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.2, random_state=0)
 
 if debug:
-    x_train = x_train[:5000]
-    y_train = y_train[:5000]
+    x_train = x_train[:3000]
+    y_train = y_train[:3000]
 
 # normalize each image pixel values for all input data
 x_train = x_train.astype('float32') / 255
@@ -115,7 +126,7 @@ if not only_evaluate:
 
     # callbacks to be useful when training eg). monitoring training curves
     mc_cb = ModelCheckpoint(                        # this is for saving the model on each epochs when the model is better
-                    filepath='models/model_e{epoch:02d}_l{val_loss:.2f}_'+prefix+'.hdf5',
+                    filepath='models/'+prefix+'/model_e{epoch:02d}_l{val_loss:.2f}_'+prefix+'.hdf5',
                     monitor='val_loss',
                     verbose=1,
                     save_best_only=True, 
@@ -140,7 +151,7 @@ if not only_evaluate:
 
 
 # load the best model from directory named models
-cnn, best_model_name = getNewestModel('models')
+cnn, best_model_name = getNewestModel('models/'+prefix)
 
 # evaluate the model using test data
 print('Evaluating CNN model..')
