@@ -31,7 +31,6 @@ from dnn_modules.callbacks import LearningHistoryCallback, plot_confusion_matrix
 from dnn_modules.get_best_model import getNewestModel
 
 
-
 # -------------------------------------------
 #       Load data and Undestand data
 # -------------------------------------------
@@ -87,6 +86,11 @@ epochs = 50          # epochs
 IMG_HEIGHT = 150     # all images will be resized
 IMG_WIDTH = 150      # to certain size to feed neural networks
 
+# make folders for storing results
+os.makedirs('fig_model', exist_ok=True)
+os.makedirs('models', exist_ok=True)
+os.makedirs('results', exist_ok=True)
+
 train_image_generator = ImageDataGenerator(rescale=1./255)   # Generator for training data
 val_image_generator = ImageDataGenerator(rescale=1./255)     # Generator for validation data
 test_image_generator = ImageDataGenerator(rescale=1./255)    # Generator for test data
@@ -136,7 +140,7 @@ if show_samples:
 #            Define callbacks
 # -----------------------------------------
 # this is for saving the model on each epoch ends when only the model is improved
-mc_cb = ModelCheckpoint(filepath='models/model_{epoch:02d}_{val_loss:.2f}_'+prefix+'.hdf5',
+mc_cb = ModelCheckpoint(filepath='models/model_e{epoch:02d}_l{val_loss:.2f}_'+prefix+'.hdf5',
                         monitor='val_loss',
                         verbose=1,
                         save_best_only=True, 

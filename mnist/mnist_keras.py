@@ -34,6 +34,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from dnn_modules.callbacks import LearningHistoryCallback, plot_confusion_matrix
 from dnn_modules.get_best_model import getNewestModel
 
+
 # configs
 prefix = 'trial5' # for name of data # TODO: automatically dicide this name
 batch_size = 128 # 128
@@ -42,6 +43,12 @@ epochs = 15 # epochs
 debug = False # use small data for debugging
 only_evaluate = True # only evaluate the already trained model without train new model
 img_rows, img_cols = 28, 28 # input image dimensions
+
+# make folders for storing results
+os.makedirs('fig_model', exist_ok=True)
+os.makedirs('models', exist_ok=True)
+os.makedirs('results', exist_ok=True)
+
 
 # load mnist dataset splited between train and test sets
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
@@ -108,7 +115,7 @@ if not only_evaluate:
 
     # callbacks to be useful when training eg). monitoring training curves
     mc_cb = ModelCheckpoint(                        # this is for saving the model on each epochs when the model is better
-                    filepath='models/model_{epoch:02d}_{val_loss:.2f}_'+prefix+'.hdf5',
+                    filepath='models/model_e{epoch:02d}_l{val_loss:.2f}_'+prefix+'.hdf5',
                     monitor='val_loss',
                     verbose=1,
                     save_best_only=True, 
