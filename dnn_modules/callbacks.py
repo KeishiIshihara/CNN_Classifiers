@@ -66,7 +66,7 @@ class LearningHistoryCallback(Callback):
 
 
 # ------------------------------------------------------
-#  plot confusion matrix using matplotlib
+#  Plot confusion matrix using matplotlib
 #  by modifying following referece:
 #
 #  Reference: Confusion matrix — scikit-learn 0.21.3 documentation
