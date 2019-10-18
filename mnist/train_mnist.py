@@ -11,11 +11,14 @@ from __future__ import print_function
 '''After 30 epoch it gets 0.99470 accuracy (loss=0.01696) with model model is trail4_30e_model_20_0.02.hdf5'''
 '''(4 seconds per epoch with GTX 1080)'''
 
+import warnings
+warnings.filterwarnings('ignore')
+
 import tensorflow as tf
 from keras import backend as K
-config = tf.ConfigProto()
+config = tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth = True
-sess = tf.Session(config=config)
+sess = tf.compat.v1.Session(config=config)
 K.set_session(sess)
 
 import keras
