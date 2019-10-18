@@ -26,7 +26,7 @@ source_dir = args.source_dir # eg. download
 base_dir   = os.path.join(os.getcwd(), 'dataset')
 # base_dir     = '/Users/ishiharakeishi/Downloads/dataset/'
 train_dir  = 'train'
-valid_dir  = 'valid'
+valid_dir  = 'validation'
 test_dir   = 'test'
 dirs = [train_dir, valid_dir, test_dir]
 
