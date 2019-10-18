@@ -222,21 +222,21 @@ print('Test accuracy: {:.5f}'.format(final_test_score[1]))
 
 # sammarize training details and results into csv
 import csv
-header = ['prefix= ',prefix]
+header = ['prefix:',prefix]
 with open('results/{}_training_summary.csv'.format(prefix),'w') as f:
-    writer = csv.writer(f, lineterminator='\n')
+    writer = csv.writer(f, delimiter='\t', lineterminator='\n')
     writer.writerow(header)
     writer.writerow([' '])
     writer.writerow(['[details]'])
     writer.writerow(['total epochs', 'batch size', 'IMG_HEIGHT', 'IMG_WIDTH'])
     writer.writerow([epochs, batch_size, img_rows, img_cols])
-    writer.writerow(['train sample #: ', x_train.shape[0]])
-    writer.writerow(['val sample #: ', x_val.shape[0]])
-    writer.writerow(['test sample #: ', x_test.shape[0]])
+    writer.writerow(['train sample #:', x_train.shape[0]])
+    writer.writerow(['val sample #:', x_val.shape[0]])
+    writer.writerow(['test sample #:', x_test.shape[0]])
     writer.writerow([' '])
-    writer.writerow(['Best model: ']+[best_model_name])
-    writer.writerow(['Train loss: ']+[final_train_score[0]])
-    writer.writerow(['Train accuracy: ']+[final_train_score[1]])
-    writer.writerow(['Test loss: ']+[final_test_score[0]])
-    writer.writerow(['Test accuracy: ']+[final_test_score[1]])
+    writer.writerow(['Best model:']+[best_model_name])
+    writer.writerow(['Train loss:']+[final_train_score[0]])
+    writer.writerow(['Train accuracy:']+[final_train_score[1]])
+    writer.writerow(['Test loss:']+[final_test_score[0]])
+    writer.writerow(['Test accuracy:']+[final_test_score[1]])
 
