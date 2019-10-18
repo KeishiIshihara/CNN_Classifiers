@@ -1,4 +1,4 @@
-# CNN Classifier with Keras
+# Classifiers with CNNs in Keras
 For better understanding Convolutional Neural Networks for classification tasks by implementing appropreate model using Keras.
 Train on MNIST dataset from scrach, and on dogs vs. cats dataset by adopting VGG19 model with weights pretrained on ImageNet dataset.  
 
@@ -10,14 +10,24 @@ Train on MNIST dataset from scrach, and on dogs vs. cats dataset by adopting VGG
 - tensorflow(-gpu) 1.14.0 (backend)
 
 In your pyenv environment, run 
-```
+```bash
 $ pip install -r requirements.txt
 ```
 
-## On MNIST dataset
-Train CNN model with running,
+### Prerequisites
+Before training `dogs vs. cats`, you suppose to have the `dogs vs. cats` dataset (Otherwise download it from Kaggle).  
+You can get ready to train by running:
+```bash
+# cd dogs-vs-cats/
+$ python prepare_dataset.py --souce-dir #path to your folder where dataset exists.
 ```
-$ python mnist_keras.py
+**Note: this creates a folder for storing dogs vs. cats dataset as subdirectory of this repository.
+
+## On MNIST dataset
+Train CNN model by running,
+```bash
+# cd mnist/
+$ python mnist_keras.py -e 10 -b 32 --prefix trial1
 ```
 It gets around 99.47% test accuracy after 14 epoch.
 
@@ -36,10 +46,13 @@ It gets around 99.47% test accuracy after 14 epoch.
 
 ## On Dog vs. Cats dataset
 Use VGG19 with weights pretrained ImageNet dataset as base model to extract features.  
-Train classifier with running,
+Train classifier by running,
+```python
+# cd dogs-vs-cats/
+$ python train_keras.py -e 10 -b 64 --prefix trial1
 ```
-$ python train_keras.py
-```
+**Note: I don't recommend you to set batch size too large. My pc suddenly shut down because PSU resource was not enough.  
+
 It gets around 96.20% test accuracy after 27 epoch.
 
 ### Training curves
