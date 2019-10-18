@@ -1,6 +1,6 @@
 # Classifiers with CNNs in Keras
 For better understanding Convolutional Neural Networks for classification tasks by implementing appropreate model using Keras.
-Train on `MNIST` dataset from scrach, and also on `Dogs vs. Cats` dataset by adopting VGG19 model with weights pretrained on ImageNet dataset.  
+Train on `MNIST` dataset from scrach, and also on `Dogs vs. Cats` dataset ([link](https://www.kaggle.com/c/dogs-vs-cats/data)) by adopting VGG19 model with weights pretrained on ImageNet dataset.  
 
 
 ### Environments
@@ -15,7 +15,7 @@ $ pip install -r requirements.txt
 ```
 
 ### Prerequisites
-Before training `dogs vs. cats`, you suppose to have the `dogs vs. cats` dataset (Otherwise download it from Kaggle).  
+Before training `dogs vs. cats`, you suppose to have the `dogs vs. cats` dataset (Otherwise download it from Kaggle [link](https://www.kaggle.com/c/dogs-vs-cats/data)).  
 You can get ready to train by running:
 ```bash
 # cd dogs-vs-cats/
@@ -35,8 +35,7 @@ It gets around 99.47% test accuracy after 14 epoch.
 ![training curves](mnist/results/trial5_training_curves.png)
 *Note: [machine learning - Higher validation accuracy, than training accurracy using Tensorflow and Keras - Stack Overflow](https://stackoverflow.com/questions/43979449/higher-validation-accuracy-than-training-accurracy-using-tensorflow-and-keras)
 
-### Normarized confusion matrix
-
+### Normarized confusion matrix 
 <img src="mnist/results/trial5_confusion_matrix.png" width="500px">
 
 ### Misclassified examples (picked the most often occurs one)
@@ -45,7 +44,7 @@ It gets around 99.47% test accuracy after 14 epoch.
 
 
 ## On Dog vs. Cats dataset
-Use VGG19 with weights pretrained ImageNet dataset as base model to extract features.  
+Use VGG19 with weights pretrained ImageNet[^2] dataset as base model to extract features.  
 Train classifier by running,
 ```bash
 # cd dogs-vs-cats/
@@ -60,10 +59,10 @@ It gets around 96.20% test accuracy after 27 epoch.
 
 
 ## References
-- MNIST:
-    - [Confusion matrix — scikit-learn 0.21.3 documentation](https://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html#sphx-glr-auto-examples-model-selection-plot-confusion-matrix-py)
-    - [keras/mnist_cnn.py at master · keras-team/keras](https://github.com/keras-team/keras/blob/master/examples/mnist_cnn.py)
-- Dogs vs. Cats:
-    - [Dogs vs. Cats | Kaggle](https://www.kaggle.com/c/dogs-vs-cats/data)
-    - [Applications - Keras Documentation](https://keras.io/applications/#vgg19)
-    - [Image classification  |  TensorFlow Core](https://www.tensorflow.org/tutorials/images/classification)
+1. [keras/mnist_cnn.py at master · keras-team/keras](https://github.com/keras-team/keras/blob/master/examples/mnist_cnn.py)
+
+1. [Confusion matrix — scikit-learn 0.21.3 documentation](https://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html#sphx-glr-auto-examples-model-selection-plot-confusion-matrix-py)
+
+1. [Dogs vs. Cats | Kaggle](https://www.kaggle.com/c/dogs-vs-cats/)
+
+1. [Image classification  |  TensorFlow Core](https://www.tensorflow.org/tutorials/images/classification)
