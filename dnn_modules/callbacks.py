@@ -1,18 +1,25 @@
-# ------------------------------------------
-#  Callback class for training with Keras
+# ===============================================
+#  Callback class for visualize training curves
 #
 #  (c) Keishi Ishihara
-# ------------------------------------------
+# ===============================================
 
-import os
-import numpy as np
 from  keras.callbacks import Callback
+import numpy as np
+import os
 import matplotlib.pyplot as plt
 
 class LearningHistoryCallback(Callback):
-    """Callback class for visualizing training curves"""
-    def __init__(self, prefix='test'):
+    """Vsualize training curves after every epoch.
+
+    # Arguments
+        prefix: string to be added to begining of file name.
+        style: string, plt style to be adopted to figure.
+    """
+    
+    def __init__(self, prefix='test', style='seaborn'):
         self.prefix = prefix
+        self.style = style
         os.makedirs('results', exist_ok=True)
 
     # This function is called when the training begins
@@ -36,42 +43,45 @@ class LearningHistoryCallback(Callback):
 
         # Before plotting ensure at least 2 epochs have passed
         if epoch >= 1:
-            N = np.arange(1, epoch+2)
+            X = np.arange(1, epoch+2)
 
-            plt.style.use("ggplot") # other option: seaborn, seaborn-colorblind
-            fig, (axL, axR) = plt.subplots(ncols=2, figsize=(10,4))
+            plt.style.use(self.style) # other option: seaborn, seaborn-colorblind
+            _, (axL, axR) = plt.subplots(ncols=2, figsize=(10,4))
 
-            axL.plot(N, self.train_losses, label='train_loss')
-            axL.plot(N, self.val_losses, label='val_loss')
+            # plot losse curve
+            axL.plot(X, self.train_losses, label='train_loss')
+            axL.plot(X, self.val_losses, label='val_loss')
             axL.set_title('Training Loss')
             axL.set_xlabel('Epoch #')
             axL.set_ylabel('Loss')
             if epoch < 10:
-                axL.set_xticks(N)
-                axL.set_xticklabels(N)
+                axL.set_xticks(X)
+                axL.set_xticklabels(X)
             axL.legend(loc='upper right')
 
-            axR.plot(N, self.train_acc, label='train_acc')
-            axR.plot(N, self.val_acc, label='val_acc')
+            #  plot accuracy curve
+            axR.plot(X, self.train_acc, label='train_acc')
+            axR.plot(X, self.val_acc, label='val_acc')
             axR.set_title('Training Accuracy')
             axR.set_xlabel('Epoch #')
             axR.set_ylabel('Accuracy')
             if epoch < 10:
-                axR.set_xticks(N)
-                axR.set_xticklabels(N)
+                axR.set_xticks(X)
+                axR.set_xticklabels(X)
             axR.legend(loc='lower right')
             plt.savefig('results/{}_training_curves.png'.format(self.prefix))
             plt.close()
 
 
 
-# ------------------------------------------------------
+# =======================================================
 #  Plot confusion matrix using matplotlib
 #  by modifying following referece:
 #
 #  Reference: Confusion matrix — scikit-learn 0.21.3 documentation
 #  https://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html#sphx-glr-auto-examples-model-selection-plot-confusion-matrix-py
-# ------------------------------------------------------
+# =======================================================
+
 import matplotlib as mpl
 from sklearn.metrics import confusion_matrix
 from sklearn.utils.multiclass import unique_labels
@@ -102,7 +112,7 @@ def plot_confusion_matrix(y_true, y_pred, classes,
     else:
         print('Confusion matrix, without normalization')
     
-    fig, ax = plt.subplots()
+    _, ax = plt.subplots()
     im = ax.imshow(cm, interpolation='nearest', cmap=cmap)
     ax.figure.colorbar(im, ax=ax)
     ax.set_xticks(np.arange(cm.shape[1]), minor=False)
