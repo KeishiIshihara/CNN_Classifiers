@@ -6,8 +6,10 @@
 
 from  keras.callbacks import Callback
 import numpy as np
-import os
 import matplotlib.pyplot as plt
+import seaborn as sns; sns.set()
+import pandas as pd
+import os, csv
 
 class LearningHistoryCallback(Callback):
     """Vsualize training curves after every epoch.
@@ -15,12 +17,18 @@ class LearningHistoryCallback(Callback):
     # Arguments
         prefix: string to be added to begining of file name.
         style: string, plt style to be adopted to figure.
+            other options, see: print(plt.style.available)
+        save_logs: if true, output training logs to csv file when every epoch ends.
+        plot_steps: if true, plot training curves in detail.
     """
     
-    def __init__(self, prefix='test', style='seaborn'):
+    def __init__(self, prefix='test', style='seaborn-darkgrid', save_logs=False, plot_steps=False):
         self.prefix = prefix
-        self.style = style
+        self.save_logs = save_logs
+        self.plot_in_detail = plot_steps
+
         os.makedirs('results', exist_ok=True)
+        plt.style.use(style) # other option: seaborn, seaborn-colorblind
 
     # This function is called when the training begins
     def on_train_begin(self, logs={}):
@@ -30,10 +38,17 @@ class LearningHistoryCallback(Callback):
         self.val_losses = []
         self.val_acc = []
         self.logs = []
+        self.losses = [] # for every steps
+        self.acc = [] # for every steps
+    
+    def on_batch_end(self, batch, logs={}):
+        # only training loss and acc are avairable.
+        self.losses.append(logs.get('loss'))
+        self.acc.append(logs.get('accuracy'))
 
     # This function is called at the end of each epoch
     def on_epoch_end(self, epoch, logs={}):
-
+        # epoch: this valiable starts from 0.
         # Append the logs, losses and accuracies to the lists
         self.logs.append(logs)
         self.train_losses.append(logs.get('loss'))
@@ -41,103 +56,64 @@ class LearningHistoryCallback(Callback):
         self.val_losses.append(logs.get('val_loss'))
         self.val_acc.append(logs.get('val_accuracy'))
 
+        if self.save_logs:
+            self.training_log_csv(epoch)
+
         # Before plotting ensure at least 2 epochs have passed
         if epoch >= 1:
-            X = np.arange(1, epoch+2)
+            X = np.arange(0, epoch+1)
 
-            plt.style.use(self.style) # other option: seaborn, seaborn-colorblind
-            _, (axL, axR) = plt.subplots(ncols=2, figsize=(10,4))
+            if not self.plot_in_detail:
+                _, (axL, axR) = plt.subplots(ncols=2, figsize=(10,4)) # figsize=(10,4)
+            else:
+                _, (axL, axR, axExtra) = plt.subplots(ncols=3, figsize=(15,4)) # figsize=(10,4)
 
-            # plot losse curve
-            axL.plot(X, self.train_losses, label='train_loss')
-            axL.plot(X, self.val_losses, label='val_loss')
+            # make pandas data frames
+            data1 = pd.DataFrame({'train_loss': self.train_losses,
+                                  'val_loss'  : self.val_losses    })
+            data2 = pd.DataFrame({'train_acc' : self.train_acc,
+                                  'val_acc'   : self.val_acc       })
+            # plot
+            sns.lineplot(data=data1, ax=axL)
+            sns.lineplot(data=data2, ax=axR)
+            # adjust losse curve
             axL.set_title('Training Loss')
             axL.set_xlabel('Epoch #')
             axL.set_ylabel('Loss')
             if epoch < 10:
-                axL.set_xticks(X)
-                axL.set_xticklabels(X)
+                axL.set_xticks(X); axL.set_xticklabels(X+1)
             axL.legend(loc='upper right')
-
-            #  plot accuracy curve
-            axR.plot(X, self.train_acc, label='train_acc')
-            axR.plot(X, self.val_acc, label='val_acc')
+            # adjust accuracy curve
             axR.set_title('Training Accuracy')
             axR.set_xlabel('Epoch #')
             axR.set_ylabel('Accuracy')
             if epoch < 10:
-                axR.set_xticks(X)
-                axR.set_xticklabels(X)
+                axR.set_xticks(X); axR.set_xticklabels(X+1)
             axR.legend(loc='lower right')
+
+            # plot per step
+            if self.plot_in_detail:
+                X = np.arange(0, epoch+1)
+                data3 = pd.DataFrame({'train_loss' : self.losses,
+                                      'train_acc'  : self.acc   })
+                line1 = sns.lineplot(data=data3.train_loss, color="g", label='train_loss', ax=axExtra)
+                axExtra2 = axExtra.twinx()
+                line2 = sns.lineplot(data=data3.train_acc, color="b", label='train_acc', ax=axExtra2)
+                axExtra.set_title('Loss and Accuracy')
+                axExtra.set_xlabel('Step #')
+                axExtra.set_ylabel('Training Loss')
+                axExtra2.set_ylabel('Training Accuracy')
+                axExtra.legend(loc='best')
+                axExtra2.legend(loc='best')
+
             plt.savefig('results/{}_training_curves.png'.format(self.prefix))
             plt.close()
 
+    def training_log_csv(self, epoch):
+        header = ['epoch','train_loss','val_loss','train_acc','val_acc']
+        with open('results/{}_training_log.csv'.format(self.prefix), 'w') as f:
+            writer = csv.writer(f, delimiter='\t', lineterminator='\n')
+            writer.writerow(header)
 
-
-# =======================================================
-#  Plot confusion matrix using matplotlib
-#  by modifying following referece:
-#
-#  Reference: Confusion matrix — scikit-learn 0.21.3 documentation
-#  https://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html#sphx-glr-auto-examples-model-selection-plot-confusion-matrix-py
-# =======================================================
-
-import matplotlib as mpl
-from sklearn.metrics import confusion_matrix
-from sklearn.utils.multiclass import unique_labels
-
-def plot_confusion_matrix(y_true, y_pred, classes,
-                          normalize=False,
-                          title=None,
-                          prefix='test',
-                          cmap=plt.cm.Blues):
-    """
-    This function prints and plots the confusion matrix.
-    Normalization can be applied by setting `normalize=True`.
-    """
-    mpl.rcParams.update(mpl.rcParamsDefault) # clear current plt style defined before
-    if not title:
-        if normalize:
-            title = 'Normalized confusion matrix'
-        else:
-            title = 'Confusion matrix, without normalization'
-
-    # Compute confusion matrix
-    cm = confusion_matrix(y_true, y_pred)
-    # Only use the labels that appear in the data
-    classes = classes[unique_labels(y_true, y_pred)]
-    if normalize:
-        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis] # normalize
-        print("Normalized confusion matrix")
-    else:
-        print('Confusion matrix, without normalization')
-    
-    _, ax = plt.subplots()
-    im = ax.imshow(cm, interpolation='nearest', cmap=cmap)
-    ax.figure.colorbar(im, ax=ax)
-    ax.set_xticks(np.arange(cm.shape[1]), minor=False)
-    ax.set_yticks(np.arange(cm.shape[0]) , minor=False)
-    ax.set_ylim(9.5,-0.5)
-    ax.set(# xticks=np.arange(cm.shape[1]),
-           # yticks=np.arange(cm.shape[0])+0.5,
-           xticklabels=classes, yticklabels=classes,
-           title=title,
-           ylabel='True label',
-           xlabel='Predicted label')
-
-    # Rotate the tick labels and set their alignment.
-    plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
-             rotation_mode="anchor")
-
-    # Loop over data dimensions and create text annotations.
-    fmt = '.2f' if normalize else 'd'
-    thresh = cm.max() / 2.
-    for i in range(cm.shape[0]):
-        for j in range(cm.shape[1]):
-            ax.text(j, i, format(cm[i, j], fmt),
-                    ha="center", va="center",
-                    color="white" if cm[i, j] > thresh else "black")
-
-    # fig.tight_layout()
-    plt.savefig('results/{}_confusion_matrix.png'.format(prefix))
-    plt.close
+            for i in range(0, epoch+1):
+                writer.writerow([i+1, self.train_losses[i], self.val_losses[i], self.train_acc[i], self.val_acc[i]])
