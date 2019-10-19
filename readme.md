@@ -1,10 +1,9 @@
 # Classifiers with CNNs in Keras
-For better understanding Convolutional Neural Networks for classification tasks by implementing appropreate model using Keras.
-Train on `MNIST` dataset from scrach, and also on `Dogs vs. Cats` dataset ([link](https://www.kaggle.com/c/dogs-vs-cats/data)) by adopting VGG19 model with weights pretrained on ImageNet dataset.  
 
-
+This repository aims to solve classification tasks more practically by implementing appropriate CNNs model in Keras.  
+Train classifiers on `MNIST` dataset from scrach, and on `Dogs vs. Cats` dataset [[link](https://www.kaggle.com/c/dogs-vs-cats/data)] by adopting VGG19 model with weights pretrained on ImageNet dataset as base model of transfer learning model.  
 ### Environments
-- macOS High Sierra 10.13.6 or Ubuntu 18.04 with Geforce GTX 1080
+- macOS High Sierra 10.13.6 or Ubuntu 18.04 with Geforce GTX 1080 (in my case)
 - Python 3.6.7
 - Keras 2.3.0
 - tensorflow(-gpu) 1.14.0 (backend)
@@ -39,6 +38,7 @@ It gets around 99.47% test accuracy after 14 epoch.
 <img src="mnist/results/trial5_confusion_matrix.png" width="500px">
 
 ### Misclassified examples (picked the most often occurs one)
+This figure shows misclassified data examples of each class. Each title shows a class which the input image classified to (and its output value[%]), and probability of occerence those cases.
 
 <img src="mnist/results/trial5_misclassification.png" width="700px">
 
