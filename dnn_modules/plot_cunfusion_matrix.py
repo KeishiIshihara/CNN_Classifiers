@@ -11,6 +11,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.utils.multiclass import unique_labels
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 def plotConfusionMatrix(y_true, y_pred, classes,
                           normalize=False,
@@ -63,5 +64,6 @@ def plotConfusionMatrix(y_true, y_pred, classes,
                     color="white" if cm[i, j] > thresh else "black")
 
     # fig.tight_layout()
-    plt.savefig('results/{}_confusion_matrix.png'.format(prefix))
+    os.makedirs('results/{}'.format(prefix), exist_ok=True)
+    plt.savefig('results/{}/{}_confusion_matrix.png'.format(prefix,prefix))
     plt.close

@@ -27,7 +27,7 @@ class LearningHistoryCallback(Callback):
         self.save_logs = save_logs
         self.plot_in_detail = plot_steps
 
-        os.makedirs('results', exist_ok=True)
+        os.makedirs('results/{}'.format(prefix), exist_ok=True)
         plt.style.use(style) # other option: seaborn, seaborn-colorblind
 
     # This function is called when the training begins
