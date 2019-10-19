@@ -30,7 +30,7 @@ import os, sys, argparse
 import numpy as np
 import matplotlib.pyplot as plt
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from dnn_modules.callbacks import LearningHistoryCallback, plot_confusion_matrix
+from dnn_modules.callbacks import LearningHistoryCallback
 from dnn_modules.get_best_model import getNewestModel
 
 
@@ -38,8 +38,10 @@ from dnn_modules.get_best_model import getNewestModel
 parser = argparse.ArgumentParser(description='CNN trainer on Dogs vs. Cats dataset')
 parser.add_argument('-s','--show-samples', action='store_true', default=False, help='Save figure of data sample')
 parser.add_argument('-e','--epochs', default=10, type=int, help='Number of epochs you run (default 10)')
-parser.add_argument('-b','--batch-size', default=64, type=int, help='Batch size (default 128)')
+parser.add_argument('-b','--batch-size', default=64, type=int, help='Batch size (default 64)')
 parser.add_argument('-p','--prefix', default='test', type=str, help='prefix to be added to result filenames (default \'test\')')
+parser.add_argument('--plot-steps', action='store_true', default=False, help='plot in detail')
+parser.add_argument('--save-logs', action='store_true', default=True, help='save training logs to csv file')
 args = parser.parse_args()
 
 
@@ -101,7 +103,7 @@ IMG_WIDTH = 150                  # to this size to feed neural networks
 # make folders for storing results
 os.makedirs('fig_model', exist_ok=True)
 os.makedirs('models/{}'.format(prefix), exist_ok=True)
-os.makedirs('results', exist_ok=True)
+os.makedirs('results/{}'.format(prefix), exist_ok=True)
 
 train_image_generator = ImageDataGenerator(rescale=1./255)   # Generator for training data
 val_image_generator = ImageDataGenerator(rescale=1./255)     # Generator for validation data
@@ -160,7 +162,7 @@ mc_cb = ModelCheckpoint(filepath='models/'+prefix+'/model_e{epoch:02d}_l{val_los
                         mode='auto')
 
 # for monitoring the training curves
-lh_cb = LearningHistoryCallback(prefix=prefix)
+lh_cb = LearningHistoryCallback(prefix=prefix, style='ggplot', save_logs=args.save_logs, plot_steps=args.plot_steps)
 callbacks = [mc_cb, lh_cb]
 
 
@@ -208,7 +210,7 @@ model.fit_generator(train_data_gen, # data generator object
 #          Evaluate the model
 # ------------------------------------
 # load the best model from directory named models to evalate the performance
-model, best_model_name = getNewestModel('models')
+model, best_model_name = getNewestModel('models/{}'.format(prefix))
 
 # evaluate the model using test data
 print('Evaluating CNN model..')
@@ -223,7 +225,7 @@ print('Test accuracy: {:.5f}'.format(final_test_score[1]))
 # sammarize training details and results into csv
 import csv
 header = ['prefix:',prefix]
-with open('results/{}_training_summary.csv'.format(prefix),'w') as f:
+with open('results/{}/{}_training_summary.csv'.format(prefix,prefix),'w') as f:
     writer = csv.writer(f, delimiter='\t', lineterminator='\n')
     writer.writerow(header)
     writer.writerow([' '])

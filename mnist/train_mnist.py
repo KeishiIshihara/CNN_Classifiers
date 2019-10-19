@@ -46,6 +46,8 @@ parser.add_argument('-o','--only-evaluate', action='store_true', default=False, 
 parser.add_argument('-e','--epochs', default=10, type=int, help='Number of epochs you run (default 10)')
 parser.add_argument('-b','--batch-size', default=128, type=int, help='Batch size (default 128)')
 parser.add_argument('-p','--prefix', default='test', type=str, help='prefix to be added to result filenames (default \'test\')')
+parser.add_argument('--plot-steps', action='store_true', default=False, help='plot in detail')
+parser.add_argument('--save-logs', action='store_true', default=True, help='save training logs to csv file')
 args = parser.parse_args()
 
 # configs
@@ -60,7 +62,7 @@ img_rows, img_cols = 28, 28 # input image dimensions
 # make folders for storing results
 os.makedirs('fig_model', exist_ok=True)
 os.makedirs('models/{}'.format(prefix), exist_ok=True)
-os.makedirs('results', exist_ok=True)
+os.makedirs('results/{}'.format(prefix), exist_ok=True)
 
 
 # --------------- Trainer starts here -------------------------
@@ -81,8 +83,8 @@ x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.
 if debug:
     x_train = x_train[:2000]
     y_train = y_train[:2000]
-    x_test = x_test[:1000]
-    y_test = y_test[:1000]
+    x_test = x_test[:5000]
+    y_test = y_test[:5000]
 # normalize each image pixel values for all input data
 x_train = x_train.astype('float32') / 255
 x_val = x_val.astype('float32') / 255
@@ -138,7 +140,7 @@ if not only_evaluate:
                     save_weights_only=False,        # if True, save without optimazers to be used eg. retrain 
                     mode='auto')
     # for monitoring the training curves
-    lh_cb = LearningHistoryCallback(prefix=prefix, style='ggplot', save_logs=True, plot_steps=True)
+    lh_cb = LearningHistoryCallback(prefix=prefix, style='ggplot', save_logs=args.save_logs, plot_steps=args.plot_steps)
     # for chainging training rates, define callback here
     # if you want to use tensorboard, define it here
     callbacks = [mc_cb, lh_cb]
@@ -212,7 +214,7 @@ for i in range(len(cm)):
     axarr[int(i/5), i%5].set_title("Classified to {}(={:.1f}%)\n Its probability={:.2f}%".format(classified[sample_idx[i]], score[sample_idx[i]], misclassified_probability[i]))
     axarr[int(i/5), i%5].imshow(x_test[sample_idx[i]].reshape(img_rows,img_cols), cmap='gray')
 plt.tight_layout()
-plt.savefig('results/{}_misclassification.png'.format(prefix))
+plt.savefig('results/{}/{}_misclassification.png'.format(prefix, prefix))
 print('(result image is saved.)')
 
 print('---')
@@ -225,7 +227,7 @@ print('Test accuracy: {:.5f}'.format(final_test_score[1]))
 # sammarize training details and results into csv
 import csv
 header = ['prefix:',prefix]
-with open('results/{}_training_summary.csv'.format(prefix),'w') as f:
+with open('results/{}/{}_training_summary.csv'.format(prefix,prefix),'w') as f:
     writer = csv.writer(f, delimiter='\t', lineterminator='\n')
     writer.writerow(header)
     writer.writerow([' '])
