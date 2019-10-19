@@ -34,8 +34,9 @@ import matplotlib.pyplot as plt
 
 import os, sys, argparse
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from dnn_modules.callbacks import LearningHistoryCallback, plot_confusion_matrix
+from dnn_modules.callbacks import LearningHistoryCallback
 from dnn_modules.get_best_model import getNewestModel
+from dnn_modules.plot_cunfusion_matrix import plotConfusionMatrix
 
 
 # arguments
@@ -78,9 +79,10 @@ input_shape = (img_rows, img_cols, 1)
 x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.2, random_state=0)
 
 if debug:
-    x_train = x_train[:3000]
-    y_train = y_train[:3000]
-
+    x_train = x_train[:2000]
+    y_train = y_train[:2000]
+    x_test = x_test[:1000]
+    y_test = y_test[:1000]
 # normalize each image pixel values for all input data
 x_train = x_train.astype('float32') / 255
 x_val = x_val.astype('float32') / 255
@@ -136,7 +138,7 @@ if not only_evaluate:
                     save_weights_only=False,        # if True, save without optimazers to be used eg. retrain 
                     mode='auto')
     # for monitoring the training curves
-    lh_cb = LearningHistoryCallback(prefix=prefix)
+    lh_cb = LearningHistoryCallback(prefix=prefix, style='ggplot', save_logs=True, plot_steps=True)
     # for chainging training rates, define callback here
     # if you want to use tensorboard, define it here
     callbacks = [mc_cb, lh_cb]
@@ -181,9 +183,9 @@ target_names = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 print(classification_report(y_test, classified, target_names=target_names))
 
 # plot normalized confusion matrix
-plot_confusion_matrix(y_test, classified, classes=np.array(target_names),
-                      prefix=prefix,
-                      normalize=True)
+plotConfusionMatrix(y_test, classified, classes=np.array(target_names),
+                    prefix=prefix,
+                    normalize=True)
 
 # pick the most common misclassified data in each classes
 misclassified_class = np.array([0 for i in range(num_classes)])
