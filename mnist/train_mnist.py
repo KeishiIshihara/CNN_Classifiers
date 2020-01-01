@@ -34,7 +34,7 @@ import matplotlib.pyplot as plt
 
 import os, sys, argparse
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from dnn_modules.callbacks import LearningHistoryCallback
+from dnn_modules.callbacks import LearningHistoryCallback, ModelCheckpointSave
 from dnn_modules.get_best_model import getNewestModel
 from dnn_modules.plot_cunfusion_matrix import plotConfusionMatrix
 
@@ -132,27 +132,33 @@ if not only_evaluate:
                 metrics=['accuracy'])
 
     # callbacks to be useful when training eg). monitoring training curves
-    mc_cb = ModelCheckpoint(                        # this is for saving the model on each epochs when the model is better
-                    filepath='models/'+prefix+'/model_e{epoch:02d}_l{val_loss:.2f}_'+prefix+'.hdf5',
-                    monitor='val_loss',
-                    verbose=1,
-                    save_best_only=True, 
-                    save_weights_only=False,        # if True, save without optimazers to be used eg. retrain 
-                    mode='auto')
+    # mc_cb = ModelCheckpoint(                        # this is for saving the model on each epochs when the model is better
+    #                 filepath='models/'+prefix+'/model_e{epoch:02d}_l{val_loss:.2f}_'+prefix+'.hdf5',
+    #                 monitor='val_loss',
+    #                 verbose=1,
+    #                 save_best_only=True, 
+    #                 save_weights_only=False,        # if True, save without optimazers to be used eg. retrain 
+    #                 mode='auto')
     # for monitoring the training curves
     lh_cb = LearningHistoryCallback(prefix=prefix, style='ggplot', save_logs=args.save_logs, plot_steps=args.plot_steps)
     # for chainging training rates, define callback here
     # if you want to use tensorboard, define it here
+    mc_cb = ModelCheckpointSave(filepath='model_e{epoch:02d}_l{val_loss:.2f}_'+prefix+'.hdf5',
+                                prefix=prefix,
+                                monitor='val_loss',
+                                verbose=1,
+                                save_best_only=True,
+                                delete_old_model=True)
     callbacks = [mc_cb, lh_cb]
 
     # train the model
     history = cnn.fit(x_train, y_train,             # training data and label
-                    batch_size=batch_size,
-                    epochs=epochs,
-                    verbose=1,
-                    validation_data=(x_val, y_val), # validation data
-                    callbacks=callbacks
-                    )
+                      batch_size=batch_size,
+                      epochs=epochs,
+                      verbose=1,
+                      validation_data=(x_val, y_val), # validation data
+                      callbacks=callbacks
+                      )
 
     del cnn # delete the model to load the best model (this is not necessary)
 
