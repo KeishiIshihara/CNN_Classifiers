@@ -1,12 +1,12 @@
 from __future__ import print_function
-# =================================================
+# ===========================================================
 #  CNNs classifier to classify dogs and cats.
 #  Train the model by transfer learning 
 #  using VGG19 pretrained on Imagenet.
 #
 #  Reference:
 #  https://www.tensorflow.org/tutorials/images/classification
-# =================================================
+# ===========================================================
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -30,7 +30,7 @@ import os, sys, argparse
 import numpy as np
 import matplotlib.pyplot as plt
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from dnn_modules.callbacks import LearningHistoryCallback
+from dnn_modules.callbacks import LearningHistoryCallback, ModelCheckpointSave
 from dnn_modules.get_best_model import getNewestModel
 
 
@@ -154,12 +154,20 @@ if show_samples:
 #            Define callbacks
 # -----------------------------------------
 # this is for saving the model on each epoch ends when only the model is improved
-mc_cb = ModelCheckpoint(filepath='models/'+prefix+'/model_e{epoch:02d}_l{val_loss:.2f}_'+prefix+'.hdf5',
-                        monitor='val_loss',
-                        verbose=1,
-                        save_best_only=True, 
-                        save_weights_only=False, # if True, save without optimazers to be used eg. retrain
-                        mode='auto')
+# mc_cb = ModelCheckpoint(filepath='models/'+prefix+'/model_e{epoch:02d}_l{val_loss:.2f}_'+prefix+'.hdf5',
+#                         monitor='val_loss',
+#                         verbose=1,
+#                         save_best_only=True, 
+#                         save_weights_only=False, # if True, save without optimazers to be used eg. retrain
+#                         mode='auto')
+
+# Not yet tested
+mc_cb = ModelCheckpointSave(filename='model_e{epoch:02d}_l{val_loss:.2f}_'+prefix+'.hdf5',
+                            prefix=prefix,
+                            monitor='val_loss',
+                            verbose=1,
+                            save_best_only=True,
+                            delete_old_model=True)
 
 # for monitoring the training curves
 lh_cb = LearningHistoryCallback(prefix=prefix, style='ggplot', save_logs=args.save_logs, plot_steps=args.plot_steps)
