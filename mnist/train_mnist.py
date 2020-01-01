@@ -143,7 +143,7 @@ if not only_evaluate:
     lh_cb = LearningHistoryCallback(prefix=prefix, style='ggplot', save_logs=args.save_logs, plot_steps=args.plot_steps)
     # for chainging training rates, define callback here
     # if you want to use tensorboard, define it here
-    mc_cb = ModelCheckpointSave(filepath='model_e{epoch:02d}_l{val_loss:.2f}_'+prefix+'.hdf5',
+    mc_cb = ModelCheckpointSave(filename='model_e{epoch:02d}_l{val_loss:.2f}_'+prefix+'.hdf5',
                                 prefix=prefix,
                                 monitor='val_loss',
                                 verbose=1,

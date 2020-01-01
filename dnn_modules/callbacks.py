@@ -124,7 +124,7 @@ class ModelCheckpointSave(Callback):
     Reference: https://keras.io/callbacks/#modelcheckpoint
 
     # Arguments
-        filepath: string, path to save the model file.
+        filename: string, name of the model file to be saved.
         monitor: quantity to monitor.
         verbose: verbosity mode, 0 or 1.
         save_best_only: if `save_best_only=True`,
@@ -136,8 +136,8 @@ class ModelCheckpointSave(Callback):
         delete_old_model: 
 
     """
-    def __init__(self, filepath=None, prefix='', monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, delete_old_model=False):
-        self.filepath = filepath
+    def __init__(self, filename=None, prefix='', monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, delete_old_model=False):
+        self.filepath = filename
         self.monitor = monitor
         self.verbose = verbose
         self.save_best_only = save_best_only
