@@ -1,8 +1,8 @@
-# ===============================================
-#  Callback class for visualize training curves
+# =================================================
+#  Callback classes for visualizing training curves
 #
 #  (c) Keishi Ishihara
-# ===============================================
+# =================================================
 
 from  keras.callbacks import Callback
 import numpy as np
@@ -106,14 +106,89 @@ class LearningHistoryCallback(Callback):
                 axExtra.legend(loc='best')
                 axExtra2.legend(loc='best')
 
-            plt.savefig('results/{}_training_curves.png'.format(self.prefix))
+            plt.savefig('results/{}/{}_training_curves.png'.format(self.prefix, self.prefix))
             plt.close()
 
     def training_log_csv(self, epoch):
         header = ['epoch','train_loss','val_loss','train_acc','val_acc']
-        with open('results/{}_training_log.csv'.format(self.prefix), 'w') as f:
+        with open('results/{}/{}_training_log.csv'.format(self.prefix, self.prefix), 'w') as f:
             writer = csv.writer(f, delimiter='\t', lineterminator='\n')
             writer.writerow(header)
 
             for i in range(0, epoch+1):
                 writer.writerow([i+1, self.train_losses[i], self.val_losses[i], self.train_acc[i], self.val_acc[i]])
+
+
+class ModelCheckpointSave(Callback):
+    """Save model at the end of every epoch.
+    Reference: https://keras.io/callbacks/#modelcheckpoint
+
+    # Arguments
+        filepath: string, path to save the model file.
+        monitor: quantity to monitor.
+        verbose: verbosity mode, 0 or 1.
+        save_best_only: if `save_best_only=True`,
+            the latest best model according to
+            the quantity monitored will not be overwritten.
+        save_weights_only: if True, then only the model's weights will be
+            saved (`model.save_weights(filepath)`), else the full model
+            is saved (`model.save(filepath)`).
+        delete_old_model: 
+
+    """
+    def __init__(self, filepath=None, prefix='', monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, delete_old_model=False):
+        self.filepath = filepath
+        self.monitor = monitor
+        self.verbose = verbose
+        self.save_best_only = save_best_only
+        self.save_weights_only = save_weights_only
+        self.prefix = prefix
+        self.delete_old_model = delete_old_model
+        # super().__init__()
+
+    def on_train_begin(self, logs=None):
+        os.makedirs('models/{}'.format(self.prefix), exist_ok=True)
+        self.monitor_op = np.less
+        self.best = np.Inf
+        self.previous_fpath = None
+
+    def on_epoch_end(self, epoch, logs=None):
+        logs = logs or {}
+        # here self.filepath is expected to:
+        # self.filepath= 'model_e{epoch:02d}_l{val_loss:.2f}_'+prefix+'.hdf5',
+        filepath = 'models/' + self.prefix + '/' + self.filepath.format(epoch=epoch + 1, **logs)
+
+        if self.save_best_only:
+            current = logs.get(self.monitor)
+            if self.monitor_op(current, self.best):
+                if self.verbose > 0:
+                    print('\nEpoch %05d: %s improved from %0.5f to %0.5f,'
+                            ' saving model to %s'
+                            % (epoch + 1, self.monitor, self.best,
+                                current, filepath))
+                self.best = current
+                if self.save_weights_only:
+                    self.model.save_weights(filepath, overwrite=True)
+                else:
+                    self.model.save(filepath, overwrite=True)
+                if self.delete_old_model and self.previous_fpath is not None:
+                    os.remove(self.previous_fpath)
+
+                self.previous_fpath = filepath
+
+            else:
+                if self.verbose > 0:
+                    print('\nEpoch %05d: %s did not improve from %0.5f' %
+                            (epoch + 1, self.monitor, self.best))
+        else:
+            if self.verbose > 0:
+                print('\nEpoch %05d: saving model to %s' % (epoch + 1, filepath))
+            if self.save_weights_only:
+                self.model.save_weights(filepath, overwrite=True)
+            else:
+                self.model.save(filepath, overwrite=True)
+
+            if self.delete_old_model and self.previous_fpath is not None:
+                os.remove(self.previous_fpath)
+
+            self.previous_fpath = filepath
