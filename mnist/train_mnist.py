@@ -51,13 +51,13 @@ parser.add_argument('--save-logs', action='store_true', default=True, help='save
 args = parser.parse_args()
 
 # configs
-prefix = args.prefix # to be added to name of results
-batch_size = args.batch_size # default 128
-epochs = args.epochs # epochs
-debug = args.debug # use small data for debugging
+prefix = args.prefix               # to be added to name of results
+batch_size = args.batch_size       # default 128
+epochs = args.epochs               # default 10
+debug = args.debug                 # use small data for debugging
 only_evaluate = args.only_evaluate # only evaluate the already trained model without train new model
-num_classes = 10 # numbers are 10 types
-img_rows, img_cols = 28, 28 # input image dimensions
+num_classes = 10                   # 0 to 9
+img_rows, img_cols = 28, 28        # input image dimensions
 
 # make folders for storing results
 os.makedirs('fig_model', exist_ok=True)
@@ -85,6 +85,7 @@ if debug:
     y_train = y_train[:2000]
     x_test = x_test[:5000]
     y_test = y_test[:5000]
+
 # normalize each image pixel values for all input data
 x_train = x_train.astype('float32') / 255
 x_val = x_val.astype('float32') / 255
@@ -132,13 +133,6 @@ if not only_evaluate:
                 metrics=['accuracy'])
 
     # callbacks to be useful when training eg). monitoring training curves
-    # mc_cb = ModelCheckpoint(                        # this is for saving the model on each epochs when the model is better
-    #                 filepath='models/'+prefix+'/model_e{epoch:02d}_l{val_loss:.2f}_'+prefix+'.hdf5',
-    #                 monitor='val_loss',
-    #                 verbose=1,
-    #                 save_best_only=True, 
-    #                 save_weights_only=False,        # if True, save without optimazers to be used eg. retrain 
-    #                 mode='auto')
     # for monitoring the training curves
     lh_cb = LearningHistoryCallback(prefix=prefix, style='ggplot', save_logs=args.save_logs, plot_steps=args.plot_steps)
     # for chainging training rates, define callback here
@@ -152,7 +146,7 @@ if not only_evaluate:
     callbacks = [mc_cb, lh_cb]
 
     # train the model
-    history = cnn.fit(x_train, y_train,             # training data and label
+    history = cnn.fit(x_train, y_train,               # training data and label
                       batch_size=batch_size,
                       epochs=epochs,
                       verbose=1,
@@ -183,7 +177,6 @@ score = np.max(prediction, axis=1) * 100
 print('Confusion Matrix')
 cm = confusion_matrix(y_test, classified) # sklearn method to calculate CM
 cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis] # normalize
-# print(cm)
 
 # classification report
 print('Classification Report')
@@ -199,7 +192,7 @@ plotConfusionMatrix(y_test, classified, classes=np.array(target_names),
 misclassified_class = np.array([0 for i in range(num_classes)])
 misclassified_probability = np.array([0. for i in range(num_classes)])
 for i, m in enumerate(cm):
-    misclassified_class[i] = m.argsort()[::-1][1] # secondly largest probability of misclassify class
+    misclassified_class[i] = m.argsort()[::-1][1]                  # secondly largest probability of misclassify class
     misclassified_probability[i] = m[misclassified_class[i]] * 100 # secondly largest probability of misclassify
 
 # sample one misclassified data of each classes
