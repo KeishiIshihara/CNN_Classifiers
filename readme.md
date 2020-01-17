@@ -1,20 +1,20 @@
 # Classifiers with CNNs in Keras
 
-This repository aims to solve classification tasks more practically by implementing appropriate CNNs model in Keras.  
-Train classifiers on `MNIST` dataset from scrach, and on `Dogs vs. Cats` dataset [[link](https://www.kaggle.com/c/dogs-vs-cats/data)] by adopting VGG19 model with weights pretrained on ImageNet dataset as base model of transfer learning model.  
-### Environments
-- macOS High Sierra 10.13.6 or Ubuntu 18.04 with Geforce GTX 1080 (in my case)
+This repository aims to solve classification tasks more practically by implementing appropriate CNNs model in Keras.
+Train classifiers on `MNIST` dataset from scrach, and on `Dogs vs. Cats` dataset [[link](https://www.kaggle.com/c/dogs-vs-cats/data)] by adopting VGG19 model with weights pretrained on ImageNet dataset as base model of transfer learning model.
+### Requirements
 - Python 3.6.7
 - Keras 2.3.0
 - tensorflow(-gpu) 1.14.0 (backend)
 
-In your pyenv environment, run 
+In your pyenv environment, run
 ```bash
 $ pip install -r requirements.txt
 ```
+If you got an error when running scripts on Ubuntu, you might want to see [this](#troubleshooting).
 
 ### Prerequisites
-Before training `dogs vs. cats`, you suppose to have the `dogs vs. cats` dataset (Otherwise download it from Kaggle [link](https://www.kaggle.com/c/dogs-vs-cats/data)).  
+Before training `dogs vs. cats`, you suppose to have the `dogs vs. cats` dataset (Otherwise download it from Kaggle [link](https://www.kaggle.com/c/dogs-vs-cats/data)).
 You can get ready to train by running:
 ```bash
 # cd dogs-vs-cats/
@@ -34,7 +34,7 @@ It gets around 99.47% test accuracy after 14 epoch.
 ![training curves](mnist/results/trial5_training_curves.png)
 *Note: [machine learning - Higher validation accuracy, than training accurracy using Tensorflow and Keras - Stack Overflow](https://stackoverflow.com/questions/43979449/higher-validation-accuracy-than-training-accurracy-using-tensorflow-and-keras)
 
-### Normarized confusion matrix 
+### Normarized confusion matrix
 <img src="mnist/results/trial5_confusion_matrix.png" width="500px">
 
 ### Misclassified examples (picked the most often occurs one)
@@ -44,7 +44,7 @@ This figure shows misclassified data examples of each class. Each title shows a 
 
 
 ## On Dog vs. Cats dataset
-Use VGG19 with weights pretrained ImageNet dataset as base model to extract features.  
+Use VGG19 with weights pretrained ImageNet dataset as base model to extract features.
 Train classifier by running,
 ```bash
 # cd dogs-vs-cats/
@@ -56,6 +56,13 @@ It gets around 96.20% test accuracy after 27 epoch.
 ### Training curves
 ![training curves](dogs-vs-cats/results/trial2_training_curves.png)
 
+
+## Troubleshooting
+- No module named '_bz2' on Ubuntu
+```
+$ sudo apt install libbz2-dev
+$ pyenv install 3.6.7
+```
 
 ## References
 1. [keras/mnist_cnn.py at master · keras-team/keras](https://github.com/keras-team/keras/blob/master/examples/mnist_cnn.py)
