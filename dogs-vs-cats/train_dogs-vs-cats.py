@@ -1,7 +1,7 @@
 from __future__ import print_function
 # ===========================================================
 #  CNNs classifier to classify dogs and cats.
-#  Train the model by transfer learning 
+#  Train the model by transfer learning
 #  using VGG19 pretrained on Imagenet.
 #
 #  Reference:
@@ -87,7 +87,7 @@ print('--')
 
 
 # -------------------------------------
-#         Define data generators 
+#         Define data generators
 # -------------------------------------
 # he entire dataset is too learge to load into RAM (probably),
 # it is necessary to load them in batch data.
@@ -157,7 +157,7 @@ if show_samples:
 # mc_cb = ModelCheckpoint(filepath='models/'+prefix+'/model_e{epoch:02d}_l{val_loss:.2f}_'+prefix+'.hdf5',
 #                         monitor='val_loss',
 #                         verbose=1,
-#                         save_best_only=True, 
+#                         save_best_only=True,
 #                         save_weights_only=False, # if True, save without optimazers to be used eg. retrain
 #                         mode='auto')
 
@@ -175,7 +175,7 @@ callbacks = [mc_cb, lh_cb]
 
 
 # -------------------------------------------------------
-#    Build model based on VGG19 pretrained on ImageNet 
+#    Build model based on VGG19 pretrained on ImageNet
 # -------------------------------------------------------
 ## base model: VGG19 with weights
 input_tensor = Input(shape=(IMG_HEIGHT, IMG_WIDTH, 3)) # input tensor
@@ -188,13 +188,13 @@ x = Dense(1024, activation='relu')(x)
 predictions = Dense(1, activation='sigmoid')(x) # Outputs are between 0 to 1. 0 means cat, 1 means dog.
 model = Model(inputs=base_model.input, outputs=predictions)
 
-# freeze base model parameters 
+# freeze base model parameters
 for layer in base_model.layers[:15]:
    layer.trainable = False
 
 # configure the model
 model.compile(loss='binary_crossentropy',
-              optimizer=SGD(lr=1e-4, momentum=0.9), 
+              optimizer=SGD(lr=1e-4, momentum=0.9),
               metrics=['accuracy'])
 
 model.summary() # print model sammary in console

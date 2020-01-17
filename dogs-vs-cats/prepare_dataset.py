@@ -1,6 +1,6 @@
 from __future__ import print_function
 # =========================================
-#   Prepare Dogs vs. Cats dataset 
+#   Prepare Dogs vs. Cats dataset
 #
 #    (c) Keishi Ishihara
 # =========================================
@@ -41,7 +41,7 @@ print('  base dir:    ',base_dir)
 print('  train:val:test = {}:{}:{}'.format(_train,_val,_test))
 
 if os.path.exists(os.path.join(source_dir, 'dogs-vs-cats.zip')) : print('  (Zip file found.)')
-else: 
+else:
     print('[Error] Zip file not found.')
     sys.exit()
 
@@ -81,7 +81,7 @@ for i in range(len(dirs)):
     os.makedirs(os.path.join(base_dir, dirs[i], 'cats'), exist_ok=True)
     os.makedirs(os.path.join(base_dir, dirs[i], 'dogs'), exist_ok=True)
 
-files = os.listdir(os.path.join(base_dir,'train_original'))  
+files = os.listdir(os.path.join(base_dir,'train_original'))
 num_files = int(len(files)/2)
 print('    (total file # {})'.format(num_files))
 
@@ -95,9 +95,9 @@ for i in range(len(dirs)):
     end += int(num_files * rates[i])
     print('  - (start={}, end={})'.format(start, end))
     for j in range(start, end):
-        os.rename('{}/dog.{}.jpg'.format(os.path.join(base_dir,'train_original'), j), 
+        os.rename('{}/dog.{}.jpg'.format(os.path.join(base_dir,'train_original'), j),
                   '{}/dogs/dog{}.jpg'.format(os.path.join(base_dir, dirs[i]), j))
-        os.rename('{}/cat.{}.jpg'.format(os.path.join(base_dir,'train_original'), j), 
+        os.rename('{}/cat.{}.jpg'.format(os.path.join(base_dir,'train_original'), j),
                   '{}/cats/cat{}.jpg'.format(os.path.join(base_dir, dirs[i]), j))
     print('  - # {}: {}'.format(dirs[i],end-start))
     start = end
